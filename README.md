@@ -16,5 +16,7 @@ Output Layer: 輸出節點數可以任意設定，此層單純加總，無活化
 <b>如何修改為Classifier Model？</b><br>
 本類別為Regression Model，亦可修改為Classifier Model。<br>
 只要把output layer加上活化函數softmax，輸出數值即可滿足下述兩大機率公設。<br>
-## 0 <= P <= 1
-## Σ(P) == 1
+<ul>
+    <li>0 <= P <= 1</li>
+    <li>Σ(P) == 1</li>
+</ul>

@@ -1,0 +1,16 @@
+{
+    "version": "0.1.0",
+    //"command": "g++",
+    "command": "g++",
+    "isShellCommand": true,
+    "showOutput": "always",
+    "args": ["main.cpp",
+            "-Wall",
+            "-pthread",
+            "-Wall",
+            "-g", 
+            "-std=c++11",
+            "-D_GLIBCXX_USE_C99",
+            "-o",
+            "NeuralNetwork"]
+}

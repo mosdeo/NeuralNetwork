@@ -176,12 +176,11 @@ namespace LKY
             for (int k = 0; k < numOutput; ++k)  // add biases to input-to-hidden sums
                 oSums[k] += oBiases[k];
 
-            //Array.Copy(oSums, this->outputs, outputs.Length);  // copy without activation
-            std::copy(oSums.begin(), oSums.begin()+this->numOutput, this->outputs.begin());
+            std::copy(oSums.begin(), oSums.begin()+this->numOutput, this->outputs.begin());// copy without activation
 
             vector<double> retResult(numOutput); // could define a GetOutputs 
-            //Array.Copy(this->outputs, retResult, retResult.Length);
             std::copy(this->outputs.begin(), this->outputs.begin()+this->numOutput, retResult.begin());
+            
             return retResult;
         }
 

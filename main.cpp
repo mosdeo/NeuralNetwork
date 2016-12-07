@@ -35,7 +35,7 @@ int main()
     cout << endl;
     cout << "Training data:" << endl;
 
-    DrawData("訓練資料",trainData, ptrWriter);
+    DrawData("訓練資料",trainData);
     cv::waitKey(30);
     //fgetc(stdin);
     cv::destroyWindow("訓練資料");
@@ -46,7 +46,6 @@ int main()
     int maxEpochs = 1000;
     double learnRate = 0.05;
     double momentum = 0.005;
-    nn.SetVideoWriter(ptrWriter);
     nn.Train(trainData, maxEpochs, learnRate, momentum);
     nn.ShowWeights();//訓練後
 

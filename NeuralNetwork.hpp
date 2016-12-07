@@ -240,13 +240,7 @@ class NeuralNetwork
 
         return result; // now scaled so that xi sum to 1.0
     }
-
-    private: cv::VideoWriter* ptrWriter;
-    public: void SetVideoWriter(cv::VideoWriter* ptrWriter)
-    {
-        this->ptrWriter =ptrWriter;
-    }
-
+    
   public:
     vector<double> Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
     {
@@ -282,7 +276,7 @@ class NeuralNetwork
 
             if(true) //繪製訓練過程testData
             { 
-                size_t numItems = 100;
+                size_t numItems = 120;
                 vector<vector<double>> testData(numItems, vector<double>(2));
                 
                 for(size_t i=0;i<numItems;i++)
@@ -291,7 +285,11 @@ class NeuralNetwork
                     testData[i][1] = ComputeOutputs(testData[i])[0];
                 }
 
-                DrawData("訓練途中", testData, this->ptrWriter);
+                string strPngName = "jpg/訓練途中" + to_string(epoch) + ".png";
+                cv::imwrite(
+                    strPngName.c_str(),
+                    DrawData("訓練途中", testData)
+                );
             }
 
             int printInterval = maxEpochs/10; // interval to check validation data

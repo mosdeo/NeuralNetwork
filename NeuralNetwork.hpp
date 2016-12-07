@@ -241,6 +241,12 @@ class NeuralNetwork
         return result; // now scaled so that xi sum to 1.0
     }
 
+    private: cv::VideoWriter* ptrWriter;
+    public: void SetVideoWriter(cv::VideoWriter* ptrWriter)
+    {
+        this->ptrWriter =ptrWriter;
+    }
+
   public:
     vector<double> Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
     {
@@ -285,7 +291,7 @@ class NeuralNetwork
                     testData[i][1] = ComputeOutputs(testData[i])[0];
                 }
 
-                DrawData(testData);
+                DrawData("訓練途中", testData, this->ptrWriter);
             }
 
             int printInterval = maxEpochs/10; // interval to check validation data
@@ -432,54 +438,16 @@ class NeuralNetwork
         return sumSquaredError / data.size();
     } // Error
 
+    public: void ShowWeights()
+    {
+        vector<double> weights = this->GetWeights();
+        std::cout << "weights: [" << endl;
+        for(auto const &n : weights)
+        {
+            cout << ' ' << n;
+        }cout << "]" << endl;
+
+    }
+
 }; // class NeuralNetwork
 }
-
-// 		public: static void ShowVector(double* vector, int decimals,
-//           int lineLen, bool newLine)
-//         {
-//             for (int i = 0; i < vector.Length; ++i)
-//             {
-//                 if (i > 0 && i % lineLen == 0) Console.WriteLine("");
-//                 if (vector[i] >= 0) Console.Write(" ");
-//                 Console.Write(vector[i].ToString("F" + decimals) + " ");
-//             }
-//             if (newLine == true)
-//                 Console.WriteLine("");
-//         }
-
-//         public: static void ShowMatrix(double*[] matrix, int numRows,
-//           int decimals, bool indices)
-//         {
-//             int len = matrix.Length.ToString().Length;
-//             for (int i = 0; i < numRows; ++i)
-//             {
-//                 if (indices == true)
-//                     Console.Write("[" + i.ToString().PadLeft(len) + "]  ");
-//                 for (int j = 0; j < matrix[i].Length; ++j)
-//                 {
-//                     double v = matrix[i][j];
-//                     if (v >= 0.0)
-//                         Console.Write(" "); // '+'
-//                     Console.Write(v.ToString("F" + decimals) + "  ");
-//                 }
-//                 Console.WriteLine("");
-//             }
-
-//             if (numRows < matrix.Length)
-//             {
-//                 Console.WriteLine(". . .");
-//                 int lastRow = matrix.Length - 1;
-//                 if (indices == true)
-//                     Console.Write("[" + lastRow.ToString().PadLeft(len) + "]  ");
-//                 for (int j = 0; j < matrix[lastRow].Length; ++j)
-//                 {
-//                     double v = matrix[lastRow][j];
-//                     if (v >= 0.0)
-//                         Console.Write(" "); // '+'
-//                     Console.Write(v.ToString("F" + decimals) + "  ");
-//                 }
-//             }
-//             Console.WriteLine("\n");
-//         }
-// }

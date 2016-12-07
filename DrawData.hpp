@@ -4,7 +4,7 @@
 #include <opencv2/opencv.hpp>
 using namespace std;
 
-void DrawData(vector<vector<double>> XYData, double Xmin = 0, double Xmax = 6.4, double Ymin = -3, double Ymax = 3)
+void DrawData(string strWindowName ,vector<vector<double>> XYData, cv::VideoWriter* ptrWriter, double Xmin = 0, double Xmax = 6.4, double Ymin = -3, double Ymax = 3)
 {
     cv::Size canvasSize(320, 240); //畫布大小
     cv::Mat canvas(canvasSize, CV_8U, cv::Scalar(0));//產生畫布
@@ -25,7 +25,8 @@ void DrawData(vector<vector<double>> XYData, double Xmin = 0, double Xmax = 6.4,
     }
     
     //顯示
-    cv::imshow("Draw in training", canvas);
+    ptrWriter->write(canvas);
+    cv::imshow(strWindowName.c_str(), canvas);
     cv::waitKey(1);
 };
 

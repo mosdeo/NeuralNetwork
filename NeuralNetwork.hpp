@@ -240,7 +240,7 @@ class NeuralNetwork
 
         return result; // now scaled so that xi sum to 1.0
     }
-    
+
   public:
     vector<double> Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
     {
@@ -274,6 +274,15 @@ class NeuralNetwork
         {
             ++epoch; // immediately to prevent display when 0
 
+            int printInterval = maxEpochs/10; // interval to check validation data
+            double trainErr = Error(trainData); //計算當下訓練誤差
+
+            if (0 == epoch % printInterval)
+            { //每 printInterval 次才顯示一次資訊
+                
+                cout << "epoch = " << epoch << "  training error = " << trainErr << endl;
+            }
+
             if(true) //繪製訓練過程testData
             { 
                 size_t numItems = 120;
@@ -285,19 +294,13 @@ class NeuralNetwork
                     testData[i][1] = ComputeOutputs(testData[i])[0];
                 }
 
-                string strPngName = "jpg/訓練途中" + to_string(epoch) + ".png";
-                cv::imwrite(
-                    strPngName.c_str(),
-                    DrawData("訓練途中", testData)
-                );
+                string strPngName = "png/訓練途中" + to_string(epoch) + ".png";
+                string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(trainErr);
+
+                cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
             }
 
-            int printInterval = maxEpochs/10; // interval to check validation data
-            if (0 == epoch % printInterval)
-            { //每 printInterval 次才顯示一次資訊
-                double trainErr = Error(trainData);
-                cout << "epoch = " << epoch << "  training error = " << trainErr << endl;
-            }
+
 
             Shuffle(sequence); // visit each training data in random order
             for (size_t ii = 0; ii < trainData.size(); ++ii)

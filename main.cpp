@@ -35,9 +35,9 @@ int main()
     cout << endl;
     cout << "Training data:" << endl;
 
-    DrawData("訓練資料",trainData);
+    DrawData("訓練資料",trainData,"Training Data");
     cv::waitKey(30);
-    //fgetc(stdin);
+    fgetc(stdin);
     cv::destroyWindow("訓練資料");
 
     LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 12, 1, 0);

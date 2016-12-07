@@ -1,7 +1,14 @@
 #include "NeuralNetwork.hpp"
+#include <opencv2/opencv.hpp>
+
+using namespace std;
 
 int main()
 {
+    cv::Mat img = cv::imread("西屯藍天.jpg");
+    cv::imshow("test img",img);
+    cv::waitKey(0);
+
     cout << "Begin neural network regression demo" << endl;
     cout << "Goal is to predict the sin(x)" << endl;
 

@@ -11,6 +11,7 @@
             "-L /usr/lib",
             "-lopencv_core",
             "-lopencv_highgui",
+            "-lopencv_imgproc",
             "-Wall",
             "-g", 
             "-std=c++11",

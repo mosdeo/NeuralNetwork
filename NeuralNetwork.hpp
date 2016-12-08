@@ -4,74 +4,51 @@
 #include <ctime>
 #include <cmath>
 #include <vector>
-#include <opencv2/opencv.hpp>
-#include "DrawData.hpp"
+//#include "opencv2/opencv.hpp"
+//#include "DrawData.hpp"
 using namespace std;
 
 namespace LKY
 {
 class NeuralNetwork
 {
-  private:
-    int numInput; // number input nodes
-  private:
-    int numHidden;
+    private: int numInput; // number input nodes
+    private: int numHidden;
+    private: int numOutput;
+    private: vector<double> inputs;
+    private: vector<double> hiddens;
+    private: vector<double> outputs;
+    private: vector<vector<double>> ihWeights; // input-hidden
+    private: vector<double> hBiases;
+    private: vector<vector<double>> hoWeights; // hidden-output
+    private: vector<double> oBiases;
 
-  private:
-    int numOutput;
-
-  private:
-    vector<double> inputs;
-
-  private:
-    vector<double> hiddens;
-
-  private:
-    vector<double> outputs;
-
-  private:
-    vector<vector<double>> ihWeights; // input-hidden
-  private:
-    vector<double> hBiases;
-
-  private:
-    vector<vector<double>> hoWeights; // hidden-output
-  private:
-    vector<double> oBiases;
-
-  public:
-    class Random
+    public: class Random
     {
-      public:
-        Random()
+        public: Random()
         {
             std::srand(std::time(0));
         }
 
-      public:
-        Random(int seed)
+        public: Random(int seed)
         {
             std::srand(seed);
         }
 
-      public:
-        int Next(int minValue, int maxValue)
+        public: int Next(int minValue, int maxValue)
         {
             return this->NextDouble() * (maxValue - minValue) + minValue;
         }
 
-      public:
-        double NextDouble()
+        public: double NextDouble()
         {
             return ((double)std::rand()) / RAND_MAX;
         }
     };
 
-  private:
-    Random rnd;
+    private: Random rnd;
 
-  public:
-    NeuralNetwork(int numInput, int numHidden, int numOutput, int seed)
+    public: NeuralNetwork(int numInput, int numHidden, int numOutput, int seed)
     {
         this->numInput = numInput;
         this->numHidden = numHidden;
@@ -91,8 +68,7 @@ class NeuralNetwork
         this->InitializeWeights(); // all weights and biases
     }                              // ctor
 
-  private:
-    static vector<vector<double>> MakeMatrix(int rows, int cols, double v) // helper for ctor, Train
+    private: static vector<vector<double>> MakeMatrix(int rows, int cols, double v) // helper for ctor, Train
     {
         vector<double> row;
         row.assign(cols, v); //配置一個row的大小
@@ -102,8 +78,7 @@ class NeuralNetwork
         return array_2D;
     }
 
-  private:
-    void InitializeWeights() // helper for ctor
+    private: void InitializeWeights() // helper for ctor
     {
         // initialize weights and biases to random values between 0.0001 and 0.001
         int numWeights = (numInput * numHidden) + (numHidden * numOutput) + numHidden + numOutput;
@@ -121,8 +96,7 @@ class NeuralNetwork
         this->SetWeights(initialWeights);
     }
 
-  public:
-    void SetWeights(vector<double> weights)
+    public: void SetWeights(vector<double> weights)
     {
         // copy serialized weights and biases in weights[] array
         // to i-h weights, i-h biases, h-o weights, h-o biases
@@ -153,8 +127,7 @@ class NeuralNetwork
             oBiases[k] = weights[w++];
     }
 
-  public:
-    vector<double> GetWeights()
+    public: vector<double> GetWeights()
     {
         int numWeights = (numInput * numHidden) + (numHidden * numOutput) + numHidden + numOutput;
         vector<double> result(numWeights);
@@ -177,8 +150,7 @@ class NeuralNetwork
         return result;
     }
 
-  public:
-    vector<double> ComputeOutputs(vector<double> xValues)
+    public: vector<double> ComputeOutputs(vector<double> xValues)
     {
         vector<double> hSums(numHidden); // hidden nodes sums scratch array
         vector<double> oSums(numOutput); // output nodes sums
@@ -211,7 +183,7 @@ class NeuralNetwork
         return retResult;
     }
 
-  private: static double HyperTan(double x)
+    private: static double HyperTan(double x)
     {
         if (x < -20.0)
             return -1.0; // approximation is correct to 30 decimals
@@ -221,7 +193,7 @@ class NeuralNetwork
             return tanh(x);
     }
 
-  private: static vector<double> Softmax(vector<double> oSums)
+    private: static vector<double> Softmax(vector<double> oSums)
     {
         // does all output nodes at once so scale
         // doesn't have to be re-computed each time
@@ -239,7 +211,7 @@ class NeuralNetwork
         return result; // now scaled so that xi sum to 1.0
     }
 
-  public: vector<double> Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
+    public: vector<double> Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
     {
         // train using back-prop
         // back-prop specific arrays
@@ -280,22 +252,22 @@ class NeuralNetwork
                 cout << "epoch = " << epoch << "  training error = " << trainErr << endl;
             }
 
-            if(true) //繪製訓練過程testData
-            { 
-                size_t numItems = 120;
-                vector<vector<double>> testData(numItems, vector<double>(2));
+            // if(false) //繪製訓練過程testData
+            // { 
+            //     size_t numItems = 120;
+            //     vector<vector<double>> testData(numItems, vector<double>(2));
                 
-                for(size_t i=0;i<numItems;i++)
-                {//產生所有取樣點
-                    testData[i][0] = i*(2*M_PI)/(double)numItems;
-                    testData[i][1] = ComputeOutputs(testData[i])[0];
-                }
+            //     for(size_t i=0;i<numItems;i++)
+            //     {//產生所有取樣點
+            //         testData[i][0] = i*(2*M_PI)/(double)numItems;
+            //         testData[i][1] = ComputeOutputs(testData[i])[0];
+            //     }
 
-                string strPngName = "png/訓練途中" + to_string(epoch) + ".png";
-                string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(trainErr);
+            //     string strPngName = "png/訓練途中" + to_string(epoch) + ".png";
+            //     string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(trainErr);
 
-                cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
-            }
+            //     cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
+            // }
 
 
 
@@ -401,15 +373,13 @@ class NeuralNetwork
         return this->GetWeights();
     } // Train
 
-  private:
-    void Shuffle(vector<int> sequence) // an instance method
+    private: void Shuffle(vector<int> sequence) // an instance method
     {
         volatile auto engine = std::default_random_engine{};
         std::random_shuffle(sequence.begin(), sequence.end());
     } // Shuffle
 
-  private:
-    double Error(vector<vector<double>> data)
+    private: double Error(vector<vector<double>> data)
     {
         // MSE == average squared error per training item
         double sumSquaredError = 0.0;
@@ -419,10 +389,7 @@ class NeuralNetwork
         // walk thru each training case
         for (size_t i = 0; i < data.size(); ++i)
         {
-            //Array.Copy(data[i], xValues, numInput);
             std::copy(data[i].begin(), data[i].begin() + numInput, xValues.begin());
-
-            //Array.Copy(data[i], numInput, tValues, 0, numOutput); // get target value(s)
             std::copy(data[i].begin() + numInput, data[i].begin() + numInput + numOutput, tValues.begin());
 
             vector<double> yValues = this->ComputeOutputs(xValues); // outputs using current weights
@@ -444,7 +411,6 @@ class NeuralNetwork
         {
             cout << ' ' << n;
         }cout << "]" << endl;
-
     }
 
 }; // class NeuralNetwork

@@ -4,14 +4,7 @@
 using namespace std;
 
 int main()
-{  
-    cv::VideoWriter* ptrWriter = new cv::VideoWriter("Sin(x) NN Learning.avi", CV_FOURCC('M', 'J', 'P', 'G'), 30.0, cv::Size(320, 240));
-    if(!ptrWriter->isOpened())
-    {
-        cerr << "Could not open the output video file for write\n";
-        return EXIT_FAILURE;
-    }
-
+{
     cout << "Begin neural network regression demo" << endl;
     cout << "Goal is to predict the sin(x)" << endl;
 
@@ -26,7 +19,7 @@ int main()
     //產生一個周期內的80個sin取樣點
     for (int i = 0; i < numTariningData; ++i)
     {
-        double x = 6.4 * rnd.NextDouble(); // [0 to 2PI]
+        double x = 2*M_PI*rnd.NextDouble(); // [0 to 2PI]
         double sx = sin(x);
         trainData[i][0] = x;
         trainData[i][1] = sx;
@@ -43,7 +36,7 @@ int main()
     LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 12, 1, 0);
     nn.ShowWeights();//訓練前
 
-    int maxEpochs = 1000;
+    int maxEpochs = 100;
     double learnRate = 0.05;
     double momentum = 0.005;
     nn.Train(trainData, maxEpochs, learnRate, momentum);
@@ -65,6 +58,5 @@ int main()
     cout << "\nEnd demo\n";
     
     cv::waitKey(30);
-    free(ptrWriter);
-    //fgetc(stdin);
+    fgetc(stdin);
 }

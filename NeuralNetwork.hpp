@@ -211,8 +211,7 @@ class NeuralNetwork
         return retResult;
     }
 
-  private:
-    static double HyperTan(double x)
+  private: static double HyperTan(double x)
     {
         if (x < -20.0)
             return -1.0; // approximation is correct to 30 decimals
@@ -222,8 +221,7 @@ class NeuralNetwork
             return tanh(x);
     }
 
-  private:
-    static vector<double> Softmax(vector<double> oSums)
+  private: static vector<double> Softmax(vector<double> oSums)
     {
         // does all output nodes at once so scale
         // doesn't have to be re-computed each time
@@ -241,8 +239,7 @@ class NeuralNetwork
         return result; // now scaled so that xi sum to 1.0
     }
 
-  public:
-    vector<double> Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
+  public: vector<double> Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
     {
         // train using back-prop
         // back-prop specific arrays

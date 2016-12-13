@@ -1,8 +1,6 @@
 ﻿#include <cstdlib>
 #include <iostream>
 #include <algorithm> // std::random_shuffle
-#include <chrono>
-#include <ctime>
 #include <cmath>
 #include <vector>
 #include "opencv2/opencv.hpp"
@@ -23,6 +21,7 @@ class NeuralNetwork
     private: vector<double> hBiases;
     private: vector<vector<double>> hoWeights; // hidden-output
     private: vector<double> oBiases;
+    public: bool isVisualizeTraining = false;
 
     public: class Random
     {
@@ -68,7 +67,8 @@ class NeuralNetwork
         this->oBiases.resize(numOutput);
 
         this->rnd = Random(seed);
-        this->InitializeWeights(); // all weights and biases
+        this->InitializeWeightsLKY();
+       //this->InitializeWeights(); // all weights and biases
     }                              // ctor
 
     private: static vector<vector<double>> MakeMatrix(int rows, int cols, double v) // helper for ctor, Train
@@ -94,6 +94,33 @@ class NeuralNetwork
             //std::srand(std::time(0));
             initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo; // [-0.001 to +0.001]
                                                                            //initialWeights[i] = (0.001 - 0.0001) * rnd.NextDouble() + 0.0001;
+        }
+
+        this->SetWeights(initialWeights);
+    }
+
+    private: void InitializeWeightsLKY() // helper for ctor
+    {
+        // initialize weights and biases to random values between 0.0001 and 0.001
+        int numWeights = (numInput * numHidden) + (numHidden * numOutput) + numHidden + numOutput;
+        vector<double> initialWeights(numWeights);
+        double hi , lo;
+
+        //in-hidden Set 
+        hi = 1/(sqrt(numInput));
+        lo = -hi;
+        for (int i = 0; i < numInput*(numHidden+1); ++i)
+        {
+            initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
+        }
+
+        //hidden-out Set 
+        hi = 1/(sqrt(numHidden));
+        lo = -hi;
+        int startPoint = numInput*(numHidden+1);
+        for (int i = startPoint; i < startPoint+numHidden*(numOutput+1); ++i)
+        {
+            initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
         }
 
         this->SetWeights(initialWeights);
@@ -246,7 +273,7 @@ class NeuralNetwork
         {
             ++epoch; // immediately to prevent display when 0
 
-            int printInterval = maxEpochs/10; // interval to check validation data
+            int printInterval = maxEpochs/100; // interval to check validation data
             double trainErr = Error(trainData); //計算當下訓練誤差
 
             if (0 == epoch % printInterval)
@@ -255,7 +282,7 @@ class NeuralNetwork
                 cout << "epoch = " << epoch << "  training error = " << trainErr << endl;
             }
 
-            if(true) //繪製訓練過程testData
+            if(isVisualizeTraining) //繪製訓練過程testData
             { 
                 size_t numItems = 120;
                 vector<vector<double>> testData(numItems, vector<double>(2));

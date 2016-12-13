@@ -38,6 +38,7 @@ int main()
     cv::destroyWindow("訓練資料");
 
     LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 4, 1, 0);
+    nn.isVisualizeTraining = true;
     nn.ShowWeights();//訓練前
 
     int maxEpochs = 1000;

@@ -24,7 +24,7 @@ int main()
     for (int i = 0; i < numTariningData; ++i)
     {
         double x = 2*M_PI*rnd.NextDouble(); // [0 to 2PI]
-        double sx = cos(2*x);
+        double sx = sin(x);
         trainData[i][0] = x;
         trainData[i][1] = sx;
         //printf("x=%lf, sx=%lf\n", x, sx);
@@ -32,20 +32,20 @@ int main()
     cout << endl;
     cout << "Training data:" << endl;
 
-    DrawData("訓練資料",trainData,"Training Data");
-    //cv::waitKey(30);
+    //DrawData("訓練資料",trainData,"Training Data");
+    cv::waitKey(3000);
     //fgetc(stdin);
-    cv::destroyWindow("訓練資料");
+    //cv::destroyWindow("訓練資料");
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 4, 1, 0);
-    nn.isVisualizeTraining = false;
-    //nn.ShowWeights();//訓練前
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 24, 1, 0);
+    nn.isVisualizeTraining = true;
+    nn.ShowWeights();//訓練前
 
-    int maxEpochs = 2000;
-    double learnRate = 0.007;
-    double momentum = 0.005;
+    int maxEpochs = 5000;
+    double learnRate = 0.0000005;
+    double momentum = 0.000005;
     nn.Train(trainData, maxEpochs, learnRate, momentum);
-    //nn.ShowWeights();//訓練後
+    nn.ShowWeights();//訓練後
 
     vector<double> y;
     y = nn.ComputeOutputs(vector<double>(numTariningData, M_PI));
@@ -65,6 +65,6 @@ int main()
     auto endTime = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
     cout << "execute time= " << endTime - statrTime << "ms"<< std::endl;
     
-    cv::waitKey(30);
+    //cv::waitKey(30);
     fgetc(stdin);
 }

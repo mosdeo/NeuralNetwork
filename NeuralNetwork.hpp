@@ -26,6 +26,21 @@ class NeuralNetwork
     private: vector<double> oBiases;
     public: bool isVisualizeTraining = false;
 
+    public: ~NeuralNetwork()
+    {
+        this->inputs.clear();
+        this->hiddens.clear();
+        this->hiddens2.clear();
+        this->outputs.clear();
+
+        this->ihWeights.clear();
+        this->hBiases.clear();
+        this->hhWeights.clear();
+        this->h2Biases.clear();
+        this->hoWeights.clear();
+        this->oBiases.clear();
+    }
+
     public: class Random
     {
         private: std::mt19937_64 randGen;
@@ -341,7 +356,7 @@ class NeuralNetwork
             int printInterval = maxEpochs/100; // interval to check validation data
             double trainErr = Error(trainData); //計算當下訓練誤差
 
-            if (0 == epoch % printInterval)
+            //if (0 == epoch % printInterval)
             { //每 printInterval 次才顯示一次資訊
                 
                 cout << "epoch = " << epoch << "  training error = " << trainErr << endl;
@@ -406,14 +421,14 @@ class NeuralNetwork
                 }
 
                 //======== Hidden-Hidden Layer =============
-                // 2. compute hidden-to-hidden weights gradients using output signals
+                // 2. compute hidden-to-hidden weights gradients
                 for (int j = 0; j < numHidden; ++j)
                     for (int k = 0; k < numHidden; ++k)
                         hhGrads[j][k] = hiddens2[k] * hiddens[j];
 
-                // 2b. compute hidden biases gradients using output signals
+                // 2b. compute hidden biases gradients
                 for (int k = 0; k < numHidden; ++k)
-                    hhbGrads[k] = hiddens2[k] * 1.0; // dummy assoc. input value
+                    hhbGrads[k] = hiddens2[k] * 1.0;
 
                 // 3. compute hidden nodes signals
                 for (int j = 0; j < numHidden; ++j)
@@ -460,6 +475,27 @@ class NeuralNetwork
                     hPrevBiasesDelta[j] = delta;
                 }
 
+                // 2.1 update hidden-to-hidden weights
+                for (int j = 0; j < numHidden; ++j)
+                {
+                    for (int k = 0; k < numHidden; ++k)
+                    {
+                        double delta = hhGrads[j][k] * learnRate;
+                        hhWeights[j][k] += delta;
+                        hhWeights[j][k] += hhPrevWeightsDelta[j][k] * momentum;
+                        hhPrevWeightsDelta[j][k] = delta;
+                    }
+                }
+
+                // 2.2 update hidden 2 node biases
+                for (int k = 0; k < numHidden; ++k)
+                {
+                    double delta = hhbGrads[k] * learnRate;
+                    h2Biases[k] += delta;
+                    h2Biases[k] += h2PrevBiasesDelta[k] * momentum;
+                    h2PrevBiasesDelta[k] = delta;
+                }
+
                 // 3. update hidden-to-output weights
                 for (int j = 0; j < numHidden; ++j)
                 {
@@ -484,6 +520,11 @@ class NeuralNetwork
             } // each training item
 
         } // while
+
+        hoGrads.clear();
+        hhGrads.clear();
+        ihGrads.clear();
+
         return this->GetWeights();
     } // Train
 

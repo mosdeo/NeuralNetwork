@@ -33,19 +33,19 @@ int main()
     cout << "Training data:" << endl;
 
     DrawData("訓練資料",trainData,"Training Data");
-    cv::waitKey(30);
-    fgetc(stdin);
+    //cv::waitKey(30);
+    //fgetc(stdin);
     cv::destroyWindow("訓練資料");
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 16, 1, 0);
-    nn.isVisualizeTraining = true;
-    nn.ShowWeights();//訓練前
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 4, 1, 0);
+    nn.isVisualizeTraining = false;
+    //nn.ShowWeights();//訓練前
 
     int maxEpochs = 2000;
     double learnRate = 0.007;
     double momentum = 0.005;
     nn.Train(trainData, maxEpochs, learnRate, momentum);
-    nn.ShowWeights();//訓練後
+    //nn.ShowWeights();//訓練後
 
     vector<double> y;
     y = nn.ComputeOutputs(vector<double>(numTariningData, M_PI));

@@ -16,6 +16,7 @@ class NeuralNetwork
     private: int numOutput;
     private: vector<double> inputs;
     private: vector<double> hiddens;
+    private: vector<double> hiddens2;
     private: vector<double> outputs;
     private: vector<vector<double>> ihWeights; // input-hidden
     private: vector<double> hBiases;
@@ -60,10 +61,14 @@ class NeuralNetwork
 
         this->inputs.resize(numInput);
         this->hiddens.resize(numHidden);
+        this->hiddens2.resize(numHidden);
         this->outputs.resize(numOutput);
 
         this->ihWeights = MakeMatrix(numInput, numHidden, 0.0);
         this->hBiases.resize(numHidden);
+
+        this->hhWeights = MakeMatrix(numHidden, numOutput, 0.0);
+        this->h2Biases.resize(numHidden);
 
         this->hoWeights = MakeMatrix(numHidden, numOutput, 0.0);
         this->oBiases.resize(numOutput);
@@ -86,12 +91,15 @@ class NeuralNetwork
     private: void InitializeWeights() // helper for ctor
     {
         // initialize weights and biases to random values between 0.0001 and 0.001
-        int numWeights = (numInput * numHidden) + (numHidden * numOutput) + numHidden + numOutput;
+        int num_In_to_Hidden = (numInput * numHidden) + numHidden; //in-hidden
+        int num_Hidden_to_Hidden = (numHidden * numHidden) + numHidden; //hidden-hidden
+        int num_Hidden_to_Out = (numHidden * numOutput) +  + numOutput; //hidden-out
+        size_t numWeights = num_In_to_Hidden + num_Hidden_to_Hidden + num_Hidden_to_Out;
         vector<double> initialWeights(numWeights);
         double lo = -0.001;
         double hi = +0.001;
 
-        for (int i = 0; i < numWeights; ++i)
+        for (size_t i = 0; i < numWeights; ++i)
         {
             initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
         }
@@ -101,24 +109,34 @@ class NeuralNetwork
 
     private: void InitializeWeightsLKY() // helper for ctor
     {
-        // initialize weights and biases to random values between 0.0001 and 0.001
-        int numWeights = (numInput * numHidden) + (numHidden * numOutput) + numHidden + numOutput;
+        int num_In_to_Hidden = (numInput * numHidden) + numHidden; //in-hidden
+        int num_Hidden_to_Hidden = (numHidden * numHidden) + numHidden; //hidden-hidden
+        int num_Hidden_to_Out = (numHidden * numOutput) +  + numOutput; //hidden-out
+        size_t numWeights = num_In_to_Hidden + num_Hidden_to_Hidden + num_Hidden_to_Out;
+
         vector<double> initialWeights(numWeights);
         double hi , lo;
 
-        //into hidden node Set 
+        //in-hidden weight Set 
         hi = 1/(sqrt(numInput));
         lo = -hi;
-        for (int i = 0; i < (numInput+1)*numHidden; ++i)
+        for (int i = 0; i < num_In_to_Hidden; ++i)
         {
             initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
         }
 
-        //into Output node Set
+        //hidden-hidden weight Set
         hi = 1/(sqrt(numHidden));
         lo = -hi;
-        int startPoint = (numInput+1)*numHidden;
-        for (int i = startPoint; i < startPoint+(numHidden+1)*numOutput; ++i)
+        for (int i = num_In_to_Hidden; i < num_In_to_Hidden+num_Hidden_to_Hidden; ++i)
+        {
+            initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
+        }
+
+        //hidden-out weight Set
+        hi = 1/(sqrt(numHidden));
+        lo = -hi;
+        for (size_t i = num_In_to_Hidden+num_Hidden_to_Hidden; i < numWeights; ++i)
         {
             initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
         }
@@ -130,8 +148,10 @@ class NeuralNetwork
     {
         // copy serialized weights and biases in weights[] array
         // to i-h weights, i-h biases, h-o weights, h-o biases
-        size_t numWeights = (numInput * numHidden) +
-                            (numHidden * numOutput) + numHidden + numOutput;
+        int num_In_to_Hidden = (numInput * numHidden) + numHidden; //in-hidden
+        int num_Hidden_to_Hidden = (numHidden * numHidden) + numHidden; //hidden-hidden
+        int num_Hidden_to_Out = (numHidden * numOutput) +  + numOutput; //hidden-out
+        size_t numWeights = num_In_to_Hidden + num_Hidden_to_Hidden + num_Hidden_to_Out;
 
         if (weights.size() != numWeights)
         {
@@ -141,6 +161,7 @@ class NeuralNetwork
 
         int w = 0; // points into weights param
 
+        //in-hidden weight Set
         for (int i = 0; i < numInput; ++i)
             for (int j = 0; j < numHidden; ++j)
                 ihWeights[i][j] = weights[w++];
@@ -148,6 +169,15 @@ class NeuralNetwork
         for (int j = 0; j < numHidden; ++j)
             hBiases[j] = weights[w++];
 
+        //hidden-hidden weight Set
+        for (int j = 0; j < numHidden; ++j)
+            for (int k = 0; k < numHidden; ++k)
+                hhWeights[j][k] = weights[w++];
+
+        for (int k = 0; k < numHidden; ++k)
+            h2Biases[k] = weights[w++];
+
+        //hidden-out weight Set
         for (int j = 0; j < numHidden; ++j)
             for (int k = 0; k < numOutput; ++k)
                 hoWeights[j][k] = weights[w++];
@@ -159,10 +189,14 @@ class NeuralNetwork
 
     public: vector<double> GetWeights()
     {
-        int numWeights = (numInput * numHidden) + (numHidden * numOutput) + numHidden + numOutput;
+        int num_In_to_Hidden = (numInput * numHidden) + numHidden; //in-hidden
+        int num_Hidden_to_Hidden = (numHidden * numHidden) + numHidden; //hidden-hidden
+        int num_Hidden_to_Out = (numHidden * numOutput) +  + numOutput; //hidden-out
+        size_t numWeights = num_In_to_Hidden + num_Hidden_to_Hidden + num_Hidden_to_Out;
         vector<double> result(numWeights);
-
         int w = 0;
+
+        //in-hidden weight Set
         for (int i = 0; i < numInput; ++i)
             for (int j = 0; j < numHidden; ++j)
                 result[w++] = ihWeights[i][j];
@@ -170,6 +204,15 @@ class NeuralNetwork
         for (int j = 0; j < numHidden; ++j)
             result[w++] = hBiases[j];
 
+        //hidden-hidden weight Set
+        for (int i = 0; i < numHidden; ++i)
+            for (int j = 0; j < numHidden; ++j)
+                result[w++] = hhWeights[i][j];
+
+        for (int j = 0; j < numHidden; ++j)
+            result[w++] = h2Biases[j];
+
+        //hidden-out weight Set
         for (int j = 0; j < numHidden; ++j)
             for (int k = 0; k < numOutput; ++k)
                 result[w++] = hoWeights[j][k];
@@ -183,11 +226,13 @@ class NeuralNetwork
     public: vector<double> ComputeOutputs(vector<double> xValues)
     {
         vector<double> hSums(numHidden); // hidden nodes sums scratch array
+        vector<double> h2Sums(numHidden);// hidden nodes sums scratch array
         vector<double> oSums(numOutput); // output nodes sums
 
         for (int i = 0; i < numInput; ++i) // copy x-values to inputs
             this->inputs[i] = xValues[i];
 
+        //First hidden node compute
         for (int j = 0; j < numHidden; ++j) // compute i-h sum of weights * inputs
             for (int i = 0; i < numInput; ++i)
                 hSums[j] += this->inputs[i] * this->ihWeights[i][j]; // note +=
@@ -198,9 +243,23 @@ class NeuralNetwork
         for (int j = 0; j < numHidden; ++j)        // apply activation
             this->hiddens[j] = HyperTan(hSums[j]); // hard-coded
 
+
+        //Second hidden node compute
+        for (int j = 0; j < numHidden; ++j) // compute i-h sum of weights * inputs
+            for (int i = 0; i < numHidden; ++i)
+                h2Sums[j] += this->hiddens[j] * this->hhWeights[i][j]; // note +=
+
+        for (int j = 0; j < numHidden; ++j) // add biases to input-to-hidden sums
+            h2Sums[j] += this->h2Biases[j];
+
+        for (int j = 0; j < numHidden; ++j)        // apply activation
+            this->hiddens2[j] = HyperTan(h2Sums[j]); // hard-coded
+
+
+        //Out node compute
         for (int k = 0; k < numOutput; ++k) // compute h-o sum of weights * hOutputs
             for (int j = 0; j < numHidden; ++j)
-                oSums[k] += hiddens[j] * hoWeights[j][k];
+                oSums[k] += hiddens2[j] * hoWeights[j][k];
 
         for (int k = 0; k < numOutput; ++k) // add biases to input-to-hidden sums
             oSums[k] += oBiases[k];
@@ -248,15 +307,21 @@ class NeuralNetwork
         vector<vector<double>> hoGrads = MakeMatrix(numHidden, numOutput, 0.0); // hidden-to-output weights gradients
         vector<double> obGrads(numOutput);                                      // output biases gradients
 
+        vector<vector<double>> hhGrads = MakeMatrix(numHidden, numHidden, 0.0); // hidden-to-hidden weights gradients
+        vector<double> hhbGrads(numHidden);                                      // hidden 2 biases gradients
+
         vector<vector<double>> ihGrads = MakeMatrix(numInput, numHidden, 0.0); // input-to-hidden weights gradients
         vector<double> hbGrads(numHidden);                                     // hidden biases gradients
 
         vector<double> oSignals(numOutput); // signals == gradients w/o associated input terms
+        vector<double> h2Signals(numHidden); // hidden 2 node signals
         vector<double> hSignals(numHidden); // hidden node signals
-
+        
         // back-prop momentum specific arrays
         vector<vector<double>> ihPrevWeightsDelta = MakeMatrix(numInput, numHidden, 0.0);
         vector<double> hPrevBiasesDelta(numHidden);
+        vector<vector<double>> hhPrevWeightsDelta = MakeMatrix(numHidden, numHidden, 0.0);
+        vector<double> h2PrevBiasesDelta(numHidden);
         vector<vector<double>> hoPrevWeightsDelta = MakeMatrix(numHidden, numOutput, 0.0);
         vector<double> oPrevBiasesDelta(numOutput);
 
@@ -300,7 +365,6 @@ class NeuralNetwork
             }
 
 
-
             Shuffle(sequence); // visit each training data in random order
             for (size_t ii = 0; ii < trainData.size(); ++ii)
             {
@@ -323,7 +387,7 @@ class NeuralNetwork
                 // 2. compute hidden-to-output weights gradients using output signals
                 for (int j = 0; j < numHidden; ++j)
                     for (int k = 0; k < numOutput; ++k)
-                        hoGrads[j][k] = oSignals[k] * hiddens[j];
+                        hoGrads[j][k] = oSignals[k] * hiddens2[j];
 
                 // 2b. compute output biases gradients using output signals
                 for (int k = 0; k < numOutput; ++k)
@@ -337,9 +401,32 @@ class NeuralNetwork
                     {
                         sum += oSignals[k] * hoWeights[j][k];
                     }
+                    double derivative = (1 + hiddens2[j]) * (1 - hiddens2[j]); // for tanh
+                    h2Signals[j] = sum * derivative;
+                }
+
+                //======== Hidden-Hidden Layer =============
+                // 2. compute hidden-to-hidden weights gradients using output signals
+                for (int j = 0; j < numHidden; ++j)
+                    for (int k = 0; k < numHidden; ++k)
+                        hhGrads[j][k] = hiddens2[k] * hiddens[j];
+
+                // 2b. compute hidden biases gradients using output signals
+                for (int k = 0; k < numHidden; ++k)
+                    hhbGrads[k] = hiddens2[k] * 1.0; // dummy assoc. input value
+
+                // 3. compute hidden nodes signals
+                for (int j = 0; j < numHidden; ++j)
+                {
+                    double sum = 0.0; // need sums of hidden signals times hidden-to-hidden weights
+                    for (int k = 0; k < numHidden; ++k)
+                    {
+                        sum += hiddens2[k] * hhWeights[j][k];
+                    }
                     double derivative = (1 + hiddens[j]) * (1 - hiddens[j]); // for tanh
                     hSignals[j] = sum * derivative;
                 }
+
 
                 // 4. compute input-hidden weights gradients
                 for (int i = 0; i < numInput; ++i)

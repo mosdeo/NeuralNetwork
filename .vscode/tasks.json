@@ -6,7 +6,7 @@
     "showOutput": "always",
     "args": ["main.cpp",
             "-Wall",
-            "-pthread",
+            //"-pthread",
             "-I /usr/include/opencv2",
             "-L /usr/lib",
             "-lopencv_core",

@@ -68,7 +68,7 @@ class NeuralNetwork
 
         this->rnd = Random(seed);
         this->InitializeWeightsLKY();
-       //this->InitializeWeights(); // all weights and biases
+        //this->InitializeWeights(); // all weights and biases
     }                              // ctor
 
     private: static vector<vector<double>> MakeMatrix(int rows, int cols, double v) // helper for ctor, Train
@@ -91,9 +91,7 @@ class NeuralNetwork
 
         for (int i = 0; i < numWeights; ++i)
         {
-            //std::srand(std::time(0));
-            initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo; // [-0.001 to +0.001]
-                                                                           //initialWeights[i] = (0.001 - 0.0001) * rnd.NextDouble() + 0.0001;
+            initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
         }
 
         this->SetWeights(initialWeights);
@@ -106,19 +104,19 @@ class NeuralNetwork
         vector<double> initialWeights(numWeights);
         double hi , lo;
 
-        //in-hidden Set 
+        //into hidden node Set 
         hi = 1/(sqrt(numInput));
         lo = -hi;
-        for (int i = 0; i < numInput*(numHidden+1); ++i)
+        for (int i = 0; i < (numInput+1)*numHidden; ++i)
         {
             initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
         }
 
-        //hidden-out Set 
+        //into Output node Set
         hi = 1/(sqrt(numHidden));
         lo = -hi;
-        int startPoint = numInput*(numHidden+1);
-        for (int i = startPoint; i < startPoint+numHidden*(numOutput+1); ++i)
+        int startPoint = (numInput+1)*numHidden;
+        for (int i = startPoint; i < startPoint+(numHidden+1)*numOutput; ++i)
         {
             initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
         }

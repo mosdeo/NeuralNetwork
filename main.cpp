@@ -1,7 +1,7 @@
 #include "NeuralNetwork.hpp"
-//#include "opencv2/opencv.hpp"
+#include "opencv2/opencv.hpp"
 #include <chrono>
-//#include "DrawData.hpp"
+#include "DrawData.hpp"
 using namespace std;
 
 int main()
@@ -32,12 +32,12 @@ int main()
     cout << endl;
     cout << "Training data:" << endl;
 
-    //DrawData("訓練資料",trainData,"Training Data");
-    //cv::waitKey(30);
-    //fgetc(stdin);
-    //cv::destroyWindow("訓練資料");
+    DrawData("訓練資料",trainData,"Training Data");
+    cv::waitKey(30);
+    fgetc(stdin);
+    cv::destroyWindow("訓練資料");
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 12, 1, 0);
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 4, 1, 0);
     nn.ShowWeights();//訓練前
 
     int maxEpochs = 1000;
@@ -64,6 +64,6 @@ int main()
     auto endTime = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
     cout << "execute time= " << endTime - statrTime << "ms"<< std::endl;
     
-    //cv::waitKey(30);
-    //fgetc(stdin);
+    cv::waitKey(30);
+    fgetc(stdin);
 }

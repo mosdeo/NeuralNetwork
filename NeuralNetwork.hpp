@@ -1,11 +1,12 @@
 ﻿#include <cstdlib>
 #include <iostream>
 #include <algorithm> // std::random_shuffle
+#include <chrono>
 #include <ctime>
 #include <cmath>
 #include <vector>
-//#include "opencv2/opencv.hpp"
-//#include "DrawData.hpp"
+#include "opencv2/opencv.hpp"
+#include "DrawData.hpp"
 using namespace std;
 
 namespace LKY
@@ -25,14 +26,15 @@ class NeuralNetwork
 
     public: class Random
     {
+        private: std::mt19937_64 randGen;
         public: Random()
         {
-            std::srand(std::time(0));
+            randGen = std::mt19937_64();
         }
 
-        public: Random(int seed)
+        public: Random(unsigned int seed)
         {
-            std::srand(seed);
+            randGen = std::mt19937_64(seed);
         }
 
         public: int Next(int minValue, int maxValue)
@@ -42,7 +44,8 @@ class NeuralNetwork
 
         public: double NextDouble()
         {
-            return ((double)std::rand()) / RAND_MAX;
+            
+            return ((double)randGen()) / randGen.max();
         }
     };
 
@@ -252,22 +255,22 @@ class NeuralNetwork
                 cout << "epoch = " << epoch << "  training error = " << trainErr << endl;
             }
 
-            // if(false) //繪製訓練過程testData
-            // { 
-            //     size_t numItems = 120;
-            //     vector<vector<double>> testData(numItems, vector<double>(2));
+            if(true) //繪製訓練過程testData
+            { 
+                size_t numItems = 120;
+                vector<vector<double>> testData(numItems, vector<double>(2));
                 
-            //     for(size_t i=0;i<numItems;i++)
-            //     {//產生所有取樣點
-            //         testData[i][0] = i*(2*M_PI)/(double)numItems;
-            //         testData[i][1] = ComputeOutputs(testData[i])[0];
-            //     }
+                for(size_t i=0;i<numItems;i++)
+                {//產生所有取樣點
+                    testData[i][0] = i*(2*M_PI)/(double)numItems;
+                    testData[i][1] = ComputeOutputs(testData[i])[0];
+                }
 
-            //     string strPngName = "png/訓練途中" + to_string(epoch) + ".png";
-            //     string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(trainErr);
+                string strPngName = "png/訓練途中" + to_string(epoch) + ".png";
+                string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(trainErr);
 
-            //     cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
-            // }
+                cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
+            }
 
 
 
@@ -276,10 +279,7 @@ class NeuralNetwork
             {
                 int idx = sequence[ii];
 
-                //Array.Copy(trainData[idx], xValues, numInput);
                 std::copy(trainData[idx].begin(), trainData[idx].begin() + numInput, xValues.begin());
-
-                //Array.Copy(trainData[idx], numInput, tValues, 0, numOutput);
                 std::copy(trainData[idx].begin() + numInput, trainData[idx].begin() + numInput + numOutput, tValues.begin());
 
                 ComputeOutputs(xValues); // copy xValues in, compute outputs
@@ -290,7 +290,7 @@ class NeuralNetwork
                 for (int k = 0; k < numOutput; ++k)
                 {
                     double derivative = 1.0; // for dummy output activation f'
-                    oSignals[k] = (tValues[k] - outputs[k]) * derivative;
+                    oSignals[k] = (tValues[k] - outputs[k]) * derivative;//計算輸出與目標的差值
                 }
 
                 // 2. compute hidden-to-output weights gradients using output signals
@@ -375,7 +375,8 @@ class NeuralNetwork
 
     private: void Shuffle(vector<int> sequence) // an instance method
     {
-        volatile auto engine = std::default_random_engine{};
+        //std::default_random_engine{}; //relatively casual, inexpert, and/or lightweight use.
+        std::mt19937{}; //it's ideal for scientific applications
         std::random_shuffle(sequence.begin(), sequence.end());
     } // Shuffle
 

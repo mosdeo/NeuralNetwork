@@ -19,8 +19,6 @@ class NeuralNetwork
     private: vector<double> outputs;
     private: vector<vector<double>> ihWeights; // input-hidden
     private: vector<double> hBiases;
-    private: vector<vector<double>> hhWeights; // hidden-hidden
-    private: vector<double> h2Biases;
     private: vector<vector<double>> hoWeights; // hidden-output
     private: vector<double> oBiases;
     public: bool isVisualizeTraining = false;

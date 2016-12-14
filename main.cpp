@@ -37,7 +37,7 @@ int main()
     fgetc(stdin);
     cv::destroyWindow("訓練資料");
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 16, 1, 0);
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 16, 1, statrTime);
     nn.isVisualizeTraining = true;
     nn.ShowWeights();//訓練前
 

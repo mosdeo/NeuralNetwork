@@ -29,8 +29,15 @@ class NeuralNetwork
     private: vector<double> h2Biases;
     private: vector<vector<double>> hoWeights; // hidden-output
     private: vector<double> oBiases;
-
     public: bool isVisualizeTraining = false;
+
+    private: bool isClassification = false;
+    private: void SetClassification()
+    {//若輸出層node少於2則不可為分類器，只能做回歸用
+        (2 > this->numOutput) ?
+            printf("Can't as Classifier, 2 > numOutput == %d.",this->numOutput) :
+            this->isClassification = true ;
+    }
 
     public: ~NeuralNetwork()
     {
@@ -101,7 +108,6 @@ class NeuralNetwork
 
         this->rnd = Random(seed);
         this->InitializeWeightsLKY();
-        //this->InitializeWeights(); // all weights and biases
     }                              // ctor
 
     private: static vector<vector<double>> MakeMatrix(int rows, int cols, double v) // helper for ctor, Train
@@ -234,7 +240,7 @@ class NeuralNetwork
 
     public: vector<double> ComputeOutputs(vector<double> xValues)
     {
-        vector<double> hSums(numHidden); // hidden nodes sums scratch array
+        vector<double> h1Sums(numHidden); // hidden nodes sums scratch array
         vector<double> h2Sums(numHidden);// hidden nodes sums scratch array
         vector<double> oSums(numOutput); // output nodes sums
 
@@ -244,13 +250,13 @@ class NeuralNetwork
         //First hidden node compute
         for (int j = 0; j < numHidden; ++j) // compute i-h sum of weights * inputs
             for (int i = 0; i < numInput; ++i)
-                hSums[j] += this->inputs[i] * this->ihWeights[i][j]; // note +=
+                h1Sums[j] += this->inputs[i] * this->ihWeights[i][j]; // note +=
 
         for (int j = 0; j < numHidden; ++j) // add biases to input-to-hidden sums
-            hSums[j] += this->h1Biases[j];
+            h1Sums[j] += this->h1Biases[j];
 
         for (int j = 0; j < numHidden; ++j)        // apply activation
-            this->hiddens1[j] = HyperTan(hSums[j]); // hard-coded
+            this->hiddens1[j] = HyperTan(h1Sums[j]); // hard-coded
 
 
         //Second hidden node compute
@@ -278,7 +284,7 @@ class NeuralNetwork
         vector<double> retResult(numOutput); // could define a GetOutputs
         std::copy(this->outputs.begin(), this->outputs.begin() + this->numOutput, retResult.begin());
 
-        return retResult;
+        return (this->isClassification ? this->Softmax(retResult) : retResult );
     }
 
     private: static double HyperTan(double x)

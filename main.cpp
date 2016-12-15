@@ -24,7 +24,7 @@ int main()
     for (int i = 0; i < numTariningData; ++i)
     {
         double x = 2*M_PI*rnd.NextDouble(); // [0 to 2PI]
-        double sx = cos(2*x);
+        double sx = sin(2*x);
         trainData[i][0] = x;
         trainData[i][1] = sx;
         //printf("x=%lf, sx=%lf\n", x, sx);
@@ -37,12 +37,12 @@ int main()
     fgetc(stdin);
     cv::destroyWindow("訓練資料");
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 16, 1, statrTime);
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 4, 1, statrTime);
     nn.isVisualizeTraining = true;
     nn.ShowWeights();//訓練前
 
-    int maxEpochs = 2000;
-    double learnRate = 0.007;
+    int maxEpochs = 3000;
+    double learnRate = 0.004;
     double momentum = 0.005;
     nn.Train(trainData, maxEpochs, learnRate, momentum);
     nn.ShowWeights();//訓練後

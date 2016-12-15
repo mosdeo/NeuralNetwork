@@ -2,10 +2,10 @@
 #include <iostream>
 #include <vector>
 
-void Verify(LKY::NeuralNetwork& nn, vector<vector<double>> verifyData)
+void Verify(LKY::NeuralNetwork& nn, vector<vector<double>> verifyData, double& CORR, double& MSE)
 {
     //求 皮爾森積差
-    double CORR = 0;
+    CORR = 0;
     double ActualPSPIAvg = 0, PredictedPSPIAvg = 0;
     double COVxy = 0, Sx=0, Sy = 0;
 
@@ -30,12 +30,12 @@ void Verify(LKY::NeuralNetwork& nn, vector<vector<double>> verifyData)
     }
     CORR = COVxy/pow(Sx*Sy, 0.5);
     string strCORR = "CORR = " + to_string(CORR);
-    cout << strCORR << endl;
+    //cout << strCORR << endl;
     //結束
 
 
     //求SetB MSE
-    double MSE = 0;
+    MSE = 0;
     for (size_t i = 0; i < verifyData.size(); i++)
     {
         //nn.ComputeOutputs只看建構子的numInput讀資料長度，所以inputVector[i]最後一項y-data會自動被忽略。
@@ -44,6 +44,6 @@ void Verify(LKY::NeuralNetwork& nn, vector<vector<double>> verifyData)
         MSE += pow(Actual - Predicted, 2);
     }
     MSE = MSE / verifyData.size();
-    cout << "MSE:" << MSE << endl;
+    //cout << "MSE:" << MSE << endl;
     //結束
 }

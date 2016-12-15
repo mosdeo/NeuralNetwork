@@ -1,4 +1,7 @@
-﻿#include <cstdlib>
+﻿#ifndef _NEURALNETWORK_HPP_
+#define _NEURALNETWORK_HPP_
+
+#include <cstdlib>
 #include <iostream>
 #include <algorithm> // std::random_shuffle
 #include <cmath>
@@ -21,6 +24,8 @@ class NeuralNetwork
     private: vector<double> hBiases;
     private: vector<vector<double>> hoWeights; // hidden-output
     private: vector<double> oBiases;
+    private: double lastTrainError;
+    public: double GetLastTrainError(){return this->lastTrainError;}
     public: bool isVisualizeTraining = false;
 
     public: class Random
@@ -272,12 +277,12 @@ class NeuralNetwork
             ++epoch; // immediately to prevent display when 0
 
             int printInterval = maxEpochs/100; // interval to check validation data
-            double trainErr = Error(trainData); //計算當下訓練誤差
+            this->lastTrainError = Error(trainData); //計算當下訓練誤差
 
             if (0 == epoch % printInterval)
             { //每 printInterval 次才顯示一次資訊
                 
-                cout << "epoch = " << epoch << "  training error = " << trainErr << endl;
+                cout << "epoch = " << epoch << "  training error = " << this->lastTrainError << endl;
             }
 
             if(isVisualizeTraining) //繪製訓練過程testData
@@ -292,7 +297,7 @@ class NeuralNetwork
                 }
 
                 string strPngName = "png/訓練途中" + to_string(epoch) + ".png";
-                string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(trainErr);
+                string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(this->lastTrainError);
 
                 cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
             }
@@ -336,6 +341,7 @@ class NeuralNetwork
                         sum += oSignals[k] * hoWeights[j][k];
                     }
                     double derivative = (1 + hiddens[j]) * (1 - hiddens[j]); // for tanh
+                    //double derivative = (1 - pow(this->HyperTan(hiddens[j]),2)); // for tanh
                     hSignals[j] = sum * derivative;
                 }
 
@@ -441,3 +447,5 @@ class NeuralNetwork
 
 }; // class NeuralNetwork
 }
+
+#endif

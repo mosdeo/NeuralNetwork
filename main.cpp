@@ -37,7 +37,7 @@ int main()
     // fgetc(stdin);
     // cv::destroyWindow("訓練資料");
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 16, 1, statrTime);
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 8, 1, statrTime);
     nn.isVisualizeTraining = true;
     //double dWeights[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5};
     //vector<double> verifyWeights(dWeights,dWeights+sizeof(dWeights)/sizeof(double));

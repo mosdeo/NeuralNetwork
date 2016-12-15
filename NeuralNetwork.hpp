@@ -435,11 +435,11 @@ class NeuralNetwork
                 // 2. compute hidden-to-hidden weights gradients
                 for (int j = 0; j < numHidden; ++j)
                     for (int k = 0; k < numHidden; ++k)
-                        hhGrads[j][k] = hiddenNodes2[k] * hiddenNodes1[j];
+                        hhGrads[j][k] = h2Signals[k] * hiddenNodes1[j];
 
                 // 2b. compute hidden biases gradients
                 for (int k = 0; k < numHidden; ++k)
-                    hhbGrads[k] = hiddenNodes2[k] * 1.0;
+                    hhbGrads[k] = h2Signals[k] * 1.0;
 
                 // 3. compute hidden nodes signals
                 for (int j = 0; j < numHidden; ++j)
@@ -447,7 +447,7 @@ class NeuralNetwork
                     double sum = 0.0; // need sums of hidden signals times hidden-to-hidden weights
                     for (int k = 0; k < numHidden; ++k)
                     {
-                        sum += hiddenNodes2[k] * hhWeights[j][k];
+                        sum += h2Signals[k] * hhWeights[j][k];
                     }
                     //double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
                     double derivative = 1 - pow(hiddenNodes1[j],2); // for tanh

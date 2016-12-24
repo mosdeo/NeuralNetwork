@@ -1,3 +1,6 @@
+#ifndef _TESTING_HPP_
+#define _TESTING_HPP_
+
 #include "../NeuralNetwork/NeuralNetwork.hpp"
 #include <iostream>
 #include <vector>
@@ -12,7 +15,7 @@ void Testing(LKY::NeuralNetwork& nn, const vector<vector<double>>& testData, dou
     for (size_t i = 0; i < testData.size(); i++)
     {//算出實際和預測的平均值
         double Predicted = nn.ComputeOutputs(testData[i])[0];
-        double Actual = *(testData[i].back());
+        double Actual = testData[i].back();
         PredictedPSPIAvg += Predicted;
         ActualPSPIAvg += Actual;
     }
@@ -22,7 +25,7 @@ void Testing(LKY::NeuralNetwork& nn, const vector<vector<double>>& testData, dou
     for (size_t i = 0; i < testData.size(); i++)
     {//求差
         double Xerr = 0, Yerr = 0;
-        Xerr = *(testData[i].back()) - ActualPSPIAvg;
+        Xerr = testData[i].back() - ActualPSPIAvg;
         Yerr =nn.ComputeOutputs(testData[i])[0] - PredictedPSPIAvg;
         COVxy += Xerr * Yerr;
         Sx += pow(Xerr, 2);
@@ -31,7 +34,7 @@ void Testing(LKY::NeuralNetwork& nn, const vector<vector<double>>& testData, dou
     CORR = COVxy/pow(Sx*Sy, 0.5);
     string strCORR = "CORR = " + to_string(CORR);
     cout << strCORR << endl;
-    //結束
+    //結束#include "../libLKY/GetFilesInDirectory.hpp"
 
     //求MSE
     MSE = 0;
@@ -39,10 +42,12 @@ void Testing(LKY::NeuralNetwork& nn, const vector<vector<double>>& testData, dou
     {
         //nn.ComputeOutputs 只看建構子的 numInput讀資料長度，所以 inputVector[i] 最後一項y-data會自動被忽略。
         double Predicted = nn.ComputeOutputs(testData[i])[0];
-        double Actual = *(testData[i].back());
+        double Actual = testData[i].back();
         MSE += pow(Actual - Predicted, 2);
     }
     MSE = MSE / testData.size();
     cout << "MSE = " << MSE << endl;
     //結束
 }
+
+#endif

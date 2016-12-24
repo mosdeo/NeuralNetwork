@@ -38,13 +38,13 @@ int main()
     // cv::destroyWindow("訓練資料");
 
     LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 8, 1, statrTime);
-    nn.isVisualizeTraining = true;
+    //nn.isVisualizeTraining = true;
     //double dWeights[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5};
     //vector<double> verifyWeights(dWeights,dWeights+sizeof(dWeights)/sizeof(double));
     //nn.SetWeights(verifyWeights);
     nn.ShowWeights();//訓練前
 
-    int maxEpochs = 5000;
+    int maxEpochs = 1000;
     double learnRate = 0.0005;
     double momentum = 0.000005;
     nn.Train(trainData, maxEpochs, learnRate, momentum);

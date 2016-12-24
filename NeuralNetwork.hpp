@@ -427,8 +427,8 @@ class NeuralNetwork
                     {
                         sum += oSignals[k] * hoWeights[j][k];
                     }
-                    //double derivative = (1 + hiddenNodes2[j]) * (1 - hiddenNodes2[j]); // for tanh
-                    double derivative = 1 - pow(hiddenNodes2[j],2); // for tanh
+                    double derivative = (1 + hiddenNodes2[j]) * (1 - hiddenNodes2[j]); // for tanh
+                    //double derivative = 1 - pow(hiddenNodes2[j],2); // for tanh
                     h2Signals[j] = sum * derivative;
                 }
 
@@ -450,8 +450,8 @@ class NeuralNetwork
                     {
                         sum += h2Signals[k] * hhWeights[j][k];
                     }
-                    //double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
-                    double derivative = 1 - pow(hiddenNodes1[j],2); // for tanh
+                    double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
+                    //double derivative = 1 - pow(hiddenNodes1[j],2); // for tanh
                     h1Signals[j] = sum * derivative;
                 }
 

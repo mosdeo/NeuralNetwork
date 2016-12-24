@@ -537,18 +537,13 @@ class NeuralNetwork
             } // each training item
 
         } // while
-
-        hoGrads.clear();
-        hhGrads.clear();
-        ihGrads.clear();
-
         //return this->GetWeights();
     } // Train
 
     private: void Shuffle(vector<int> sequence) // an instance method
     {
         //std::default_random_engine{}; //relatively casual, inexpert, and/or lightweight use.
-        std::mt19937{}; //it's ideal for scientific applications
+        std::srand(time(NULL));
         std::random_shuffle(sequence.begin(), sequence.end());
     } // Shuffle
 

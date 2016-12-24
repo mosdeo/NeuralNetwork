@@ -9,6 +9,7 @@
             "-pthread",
             "-I /usr/include/opencv2",
             "-L /usr/lib",
+            "/usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.3.0",
             "-lopencv_core",
             "-lopencv_highgui",
             "-lopencv_imgproc",

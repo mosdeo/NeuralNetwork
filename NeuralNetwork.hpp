@@ -282,7 +282,8 @@ class NeuralNetwork
             if (0 == epoch % printInterval)
             { //每 printInterval 次才顯示一次資訊
                 
-                cout << "epoch = " << epoch << "  training error = " << this->lastTrainError << endl;
+                cout << "." << flush;
+                //cout << "epoch = " << epoch << "  training error = " << this->lastTrainError << endl;
             }
 
             if(isVisualizeTraining) //繪製訓練過程testData

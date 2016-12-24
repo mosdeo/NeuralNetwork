@@ -1,4 +1,7 @@
-﻿#include <cstdlib>
+﻿#ifndef _NEURALNETWORK_HPP_
+#define _NEURALNETWORK_HPP_
+
+#include <cstdlib>
 #include <iostream>
 #include <algorithm> // std::random_shuffle
 #include <cmath>
@@ -39,6 +42,8 @@ class NeuralNetwork
     private: vector<double> oPrevBiasesDelta;
 
     public: bool isVisualizeTraining = false;
+    private: double lastTrainError;
+    public: double GetLastTrainError(){return this->lastTrainError;}
     private: bool isClassification = false;
     private: void SetClassification()
     {//若輸出層node少於2則不可為分類器，只能做回歸用
@@ -359,12 +364,11 @@ class NeuralNetwork
         for (size_t i = 0; i < trainData.size(); ++i)
             sequence[i] = i;
 
+        int printInterval = maxEpochs/100; // interval to check validation data
         while (epoch < maxEpochs)
         {
             ++epoch; // immediately to prevent display when 0
-
-            int printInterval = maxEpochs/100; // interval to check validation data
-            double trainErr = Error(trainData); //計算當下訓練誤差
+            this->lastTrainError = Error(trainData); //計算當下訓練誤差
 
             if (0 == epoch % printInterval)
             { //每 printInterval 次才顯示一次資訊
@@ -385,7 +389,7 @@ class NeuralNetwork
                 }
 
                 string strPngName = "png/訓練途中" + to_string(epoch) + ".png";
-                string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(trainErr);
+                string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(this->lastTrainError);
 
                 cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
             }
@@ -584,3 +588,5 @@ class NeuralNetwork
 
 }; // class NeuralNetwork
 }
+
+#endif

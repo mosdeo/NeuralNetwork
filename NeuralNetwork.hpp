@@ -366,10 +366,11 @@ class NeuralNetwork
             int printInterval = maxEpochs/100; // interval to check validation data
             double trainErr = Error(trainData); //計算當下訓練誤差
 
-            //if (0 == epoch % printInterval)
+            if (0 == epoch % printInterval)
             { //每 printInterval 次才顯示一次資訊
                 
-                cout << "epoch = " << epoch << "  training error = " << trainErr << endl;
+                cout << "." << flush;
+                //cout << "epoch = " << epoch << "  training error = " << this->lastTrainError << endl;
             }
 
             if(isVisualizeTraining) //繪製訓練過程testData

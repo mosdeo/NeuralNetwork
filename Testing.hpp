@@ -12,7 +12,7 @@ void Testing(LKY::NeuralNetwork& nn, vector<vector<double>> testData, double& CO
     for (size_t i = 0; i < testData.size(); i++)
     {//算出實際和預測的平均值
         double Predicted = nn.ComputeOutputs(testData[i])[0];
-        double Actual = testData[i].end();
+        double Actual = testData[i].back();
         PredictedPSPIAvg += Predicted;
         ActualPSPIAvg += Actual;
     }
@@ -22,7 +22,7 @@ void Testing(LKY::NeuralNetwork& nn, vector<vector<double>> testData, double& CO
     for (size_t i = 0; i < testData.size(); i++)
     {//求差
         double Xerr = 0, Yerr = 0;
-        Xerr = testData[i].end() - ActualPSPIAvg;
+        Xerr = testData[i].back() - ActualPSPIAvg;
         Yerr = nn.ComputeOutputs(testData[i])[0] - PredictedPSPIAvg;
         COVxy += Xerr * Yerr;
         Sx += pow(Xerr, 2);
@@ -39,7 +39,7 @@ void Testing(LKY::NeuralNetwork& nn, vector<vector<double>> testData, double& CO
     {
         //nn.ComputeOutputs 只看建構子的 numInput讀資料長度，所以 inputVector[i] 最後一項y-data會自動被忽略。
         double Predicted = nn.ComputeOutputs(testData[i])[0];
-        double Actual = testData[i].end();
+        double Actual = testData[i].back();
         MSE += pow(Actual - Predicted, 2);
     }
     MSE = MSE / testData.size();

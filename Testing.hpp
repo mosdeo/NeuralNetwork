@@ -26,7 +26,7 @@ void Testing(LKY::NeuralNetwork& nn, const vector<vector<double>>& testData, dou
     {//求差
         double Xerr = 0, Yerr = 0;
         Xerr = testData[i].back() - ActualPSPIAvg;
-        Yerr =nn.ComputeOutputs(testData[i])[0] - PredictedPSPIAvg;
+        Yerr = nn.ComputeOutputs(testData[i])[0] - PredictedPSPIAvg;
         COVxy += Xerr * Yerr;
         Sx += pow(Xerr, 2);
         Sy += pow(Yerr, 2);

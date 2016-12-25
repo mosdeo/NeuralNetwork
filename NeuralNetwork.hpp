@@ -72,7 +72,7 @@ class NeuralNetwork
         private: std::mt19937_64 randGen;
         public: Random()
         {
-            randGen = std::mt19937_64();
+            randGen = std::mt19937_64(time(NULL));
         }
 
         public: Random(unsigned int seed)
@@ -128,7 +128,7 @@ class NeuralNetwork
         oPrevBiasesDelta = vector<double>(numOutput);
 
         this->rnd = Random(seed);
-        this->InitializeWeightsLKY();
+        this->InitializeWeights();
     }                              // ctor
 
     private: static vector<vector<double>> MakeMatrix(int rows, int cols, double v) // helper for ctor, Train
@@ -141,22 +141,7 @@ class NeuralNetwork
         return array_2D;
     }
 
-    private: void InitializeWeights() // helper for ctor
-    {
-        // initialize weights and biases to random values between 0.0001 and 0.001
-        vector<double> initialWeights(numWeights);
-        double lo = -0.001;
-        double hi = +0.001;
-
-        for (size_t i = 0; i < numWeights; ++i)
-        {
-            initialWeights[i] = (hi-lo) *  rnd.NextDouble() + lo;
-        }
-
-        this->SetWeights(initialWeights);
-    }
-
-    private: void InitializeWeightsLKY() // helper for ctor
+    public: void InitializeWeights() // helper for ctor
     {
         vector<double> initialWeights(numWeights);
         double hi , lo;

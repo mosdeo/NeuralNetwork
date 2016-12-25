@@ -72,8 +72,7 @@ class NeuralNetwork
         this->oBiases.resize(numOutput);
 
         this->rnd = Random(seed);
-        this->InitializeWeightsLKY();
-        //this->InitializeWeights(); // all weights and biases
+        this->InitializeWeights();// all weights and biases
     }                              // ctor
 
     private: static vector<vector<double>> MakeMatrix(int rows, int cols, double v) // helper for ctor, Train

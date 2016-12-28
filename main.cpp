@@ -19,7 +19,7 @@ void DrawTraining(LKY::NeuralNetwork& _nn, int maxEpochs, int currentEpochs)
     string strPutText = "Epoch:"+to_string(currentEpochs)+"/"+to_string(maxEpochs)+"  Err:" + to_string(_nn.GetLastTrainError());
 
     //cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
-    DrawData("訓練途中",testData);
+    DrawData("訓練途中", testData, strPutText);
 }
 
 int main(int argc, char* argv[])
@@ -42,9 +42,10 @@ int main(int argc, char* argv[])
     for (int i = 0; i < numTariningData; ++i)
     {
         double x = 2*M_PI*rnd.NextDouble(); // [0 to 2PI]
-        double sx = sin(x);
+        double sx = sin(1.5*x);
         trainData[i][0] = x;
-        trainData[i][1] = sx;
+        //trainData[i][1] = sin(x);
+        trainData[i].back() = sx;
         //printf("x=%lf, sx=%lf\n", x, sx);
     }
     cout << endl;
@@ -55,26 +56,14 @@ int main(int argc, char* argv[])
     // fgetc(stdin);
     // cv::destroyWindow("訓練資料");
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 16, 1, statrTime);
-    //nn.isVisualizeTraining = true;
-    //double dWeights[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5};
-    //vector<double> verifyWeights(dWeights,dWeights+sizeof(dWeights)/sizeof(double));
-    //nn.SetWeights(verifyWeights);
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 12, 1, statrTime);
     nn.ShowWeights();//訓練前
 
     int maxEpochs = 10000;
-    double learnRate = 0.0005;
-    double momentum = 0.000005;
-    nn.ptrFuncInTraining = DrawTraining;
+    double learnRate = 0.0012;
+    double momentum  = 0.0003;
+    nn.ptrFuncInTraining = DrawTraining;//將包有視覺化的事件傳入
     nn.Train(trainData, maxEpochs, learnRate, momentum);
-    //nn.ShowWeights();//訓練後
-
-    // double dInputs[] = {-100, 100};
-    // vector<double> vecInputs(dInputs, dInputs+sizeof(dInputs)/sizeof(double));
-    // vector<double> y;
-    // y = nn.ComputeOutputs(vecInputs);
-    // cout << "\ny[0]" + to_string(y[0]) << endl;
-    // cout << "\ny[1]" + to_string(y[1]) << endl;
 
     cout << "\nEnd demo\n";
 

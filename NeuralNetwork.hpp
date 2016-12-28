@@ -43,11 +43,17 @@ class NeuralNetwork
     private: double lastTrainError;
     public: double GetLastTrainError(){return this->lastTrainError;}
     private: bool isClassification = false;
-    private: void SetClassification()
+    public: void SetClassification()
     {//若輸出層node少於2則不可為分類器，只能做回歸用
-        (2 > this->numOutput) ?
-            printf("Can't as Classifier, 2 > numOutput == %d.",this->numOutput) :
+        if(2 > this->numOutput)
+        {
+            printf("Can't as Classifier, 2 > numOutput == %d.",this->numOutput);
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
             this->isClassification = true ;
+        }
     }
 
     public: ~NeuralNetwork()
@@ -402,8 +408,8 @@ class NeuralNetwork
                     {
                         sum += oSignals[k] * hoWeights[j][k];
                     }
-                    double derivative = (1 + hiddenNodes2[j]) * (1 - hiddenNodes2[j]); // for tanh
-                    //double derivative = 1 - pow(hiddenNodes2[j],2); // for tanh
+                    //double derivative = (1 + hiddenNodes2[j]) * (1 - hiddenNodes2[j]); // for tanh
+                    double derivative = 1 - pow(hiddenNodes2[j],2); // for tanh
                     h2Signals[j] = sum * derivative;
                 }
 
@@ -425,8 +431,8 @@ class NeuralNetwork
                     {
                         sum += h2Signals[k] * hhWeights[j][k];
                     }
-                    double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
-                    //double derivative = 1 - pow(hiddenNodes1[j],2); // for tanh
+                    //double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
+                    double derivative = 1 - pow(hiddenNodes1[j],2); // for tanh
                     h1Signals[j] = sum * derivative;
                 }
 

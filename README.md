@@ -9,9 +9,9 @@ main.cpp 裏面是一個測試範例，對sin(x)在0~2pi之間隨機取樣，讓
 <br>
 <b>NN架構說明</b><br>
 Input Layer: 輸入節點數可以任意設定。<br>
-Hidden Layer: 目前限定一層，寬度可以任意設定。<br>
-Output Layer: 輸出節點數可以任意設定，此層單純加總，無活化函數<br>
-倒傳遞: 採用梯度下降法。<br>
+Hidden Layer: 這個 branch 是2隱藏層，目前還是實驗性的，寬度可以任意設定，但是兩層必須一樣寬。<br>
+Output Layer: 輸出節點數可以任意設定。<br>
+
 <br>
 <b>如何修改為Classifier Model？</b><br>
 本類別預設為Regression Model，亦可修改為Classifier Model。<br>

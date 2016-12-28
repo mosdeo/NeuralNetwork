@@ -4,7 +4,25 @@
 #include "DrawData.hpp"
 using namespace std;
 
-int main()
+void DrawTraining(LKY::NeuralNetwork& _nn, int maxEpochs, int currentEpochs)
+{
+    size_t numItems = 120;
+    vector<vector<double>> testData(numItems, vector<double>(2));
+    
+    for(size_t i=0;i<numItems;i++)
+    {//產生所有取樣點
+        testData[i][0] = i*(2*M_PI)/(double)numItems;
+        testData[i][1] = _nn.ComputeOutputs(testData[i])[0];
+    }
+
+    string strPngName = "png/訓練途中" + to_string(currentEpochs) + ".png";
+    string strPutText = "Epoch:"+to_string(currentEpochs)+"/"+to_string(maxEpochs)+"  Err:" + to_string(_nn.GetLastTrainError());
+
+    //cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
+    DrawData("訓練途中",testData);
+}
+
+int main(int argc, char* argv[])
 {
     auto statrTime = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
     cout << "statrTime= " << statrTime << std::endl;
@@ -37,16 +55,17 @@ int main()
     // fgetc(stdin);
     // cv::destroyWindow("訓練資料");
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 8, 1, statrTime);
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 16, 1, statrTime);
     //nn.isVisualizeTraining = true;
     //double dWeights[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5};
     //vector<double> verifyWeights(dWeights,dWeights+sizeof(dWeights)/sizeof(double));
     //nn.SetWeights(verifyWeights);
     nn.ShowWeights();//訓練前
 
-    int maxEpochs = 1000;
+    int maxEpochs = 10000;
     double learnRate = 0.0005;
     double momentum = 0.000005;
+    //nn.ptrFuncInTraining = DrawTraining;
     nn.Train(trainData, maxEpochs, learnRate, momentum);
     nn.ShowWeights();//訓練後
 

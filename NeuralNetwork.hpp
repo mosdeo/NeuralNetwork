@@ -6,8 +6,6 @@
 #include <algorithm> // std::random_shuffle
 #include <cmath>
 #include <vector>
-#include "opencv2/opencv.hpp"
-#include "DrawData.hpp"
 using namespace std;
 
 namespace LKY
@@ -322,6 +320,7 @@ class NeuralNetwork
         return result; // now scaled so that xi sum to 1.0
     }
 
+    public: void (*ptrFuncInTraining)(LKY::NeuralNetwork&,int,int) = NULL;
     public: void Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
     {
         // train using back-prop
@@ -362,23 +361,10 @@ class NeuralNetwork
                 //cout << "epoch = " << epoch << "  training error = " << this->lastTrainError << endl;
             }
 
-            if(isVisualizeTraining) //繪製訓練過程testData
-            { 
-                size_t numItems = 120;
-                vector<vector<double>> testData(numItems, vector<double>(2));
-                
-                for(size_t i=0;i<numItems;i++)
-                {//產生所有取樣點
-                    testData[i][0] = i*(2*M_PI)/(double)numItems;
-                    testData[i][1] = ComputeOutputs(testData[i])[0];
-                }
-
-                string strPngName = "png/訓練途中" + to_string(epoch) + ".png";
-                string strPutText = "Epoch:"+to_string(epoch)+"/"+to_string(maxEpochs)+"  Err:" + to_string(this->lastTrainError);
-
-                cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
+            if(NULL != this->ptrFuncInTraining) //繪製訓練過程testData
+            {
+                this->ptrFuncInTraining(*this,maxEpochs,epoch); 
             }
-
 
             Shuffle(sequence); // visit each training data in random order
             for (size_t ii = 0; ii < trainData.size(); ++ii)

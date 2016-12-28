@@ -65,9 +65,9 @@ int main(int argc, char* argv[])
     int maxEpochs = 10000;
     double learnRate = 0.0005;
     double momentum = 0.000005;
-    //nn.ptrFuncInTraining = DrawTraining;
+    nn.ptrFuncInTraining = DrawTraining;
     nn.Train(trainData, maxEpochs, learnRate, momentum);
-    nn.ShowWeights();//訓練後
+    //nn.ShowWeights();//訓練後
 
     // double dInputs[] = {-100, 100};
     // vector<double> vecInputs(dInputs, dInputs+sizeof(dInputs)/sizeof(double));

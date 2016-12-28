@@ -100,7 +100,7 @@ class NeuralNetwork
 
         this->num_In_to_Hidden = (numInput * numHidden) + numHidden; //in-hidden
         this->num_Hidden_to_Hidden = (numHidden * numHidden) + numHidden; //hidden-hidden
-        this->num_Hidden_to_Out = (numHidden * numOutput) +  + numOutput; //hidden-out
+        this->num_Hidden_to_Out = (numHidden * numOutput) + numOutput; //hidden-out
         this->numWeights = this->num_In_to_Hidden + this->num_Hidden_to_Hidden + this->num_Hidden_to_Out;
 
         this->inputs.resize(numInput);
@@ -111,7 +111,7 @@ class NeuralNetwork
         this->ihWeights = MakeMatrix(numInput, numHidden, 0.0);
         this->h1Biases.resize(numHidden);
 
-        this->hhWeights = MakeMatrix(numHidden, numOutput, 0.0);
+        this->hhWeights = MakeMatrix(numHidden, numHidden, 0.0);
         this->h2Biases.resize(numHidden);
 
         this->hoWeights = MakeMatrix(numHidden, numOutput, 0.0);
@@ -185,27 +185,27 @@ class NeuralNetwork
         int w = 0; // points into weights param
 
         //in-hidden weight Set
-        for (int i = 0; i < numInput; ++i)
-            for (int j = 0; j < numHidden; ++j)
+        for (size_t i = 0; i < ihWeights.size(); ++i)
+            for (size_t j = 0; j < ihWeights[i].size(); ++j)
                 ihWeights[i][j] = weights[w++];
 
-        for (int j = 0; j < numHidden; ++j)
+        for (size_t j = 0; j < h1Biases.size(); ++j)
             h1Biases[j] = weights[w++];
 
         //hidden-hidden weight Set
-        for (int j = 0; j < numHidden; ++j)
-            for (int k = 0; k < numHidden; ++k)
+        for (size_t j = 0; j < hhWeights.size(); ++j)
+            for (size_t k = 0; k < hhWeights[j].size(); ++k)
                 hhWeights[j][k] = weights[w++];
 
-        for (int k = 0; k < numHidden; ++k)
+        for (size_t k = 0; k < h2Biases.size(); ++k)
             h2Biases[k] = weights[w++];
 
         //hidden-out weight Set
-        for (int j = 0; j < numHidden; ++j)
-            for (int k = 0; k < numOutput; ++k)
+        for (size_t j = 0; j < hoWeights.size(); ++j)
+            for (size_t k = 0; k < hoWeights[j].size(); ++k)
                 hoWeights[j][k] = weights[w++];
 
-        for (int k = 0; k < numOutput; ++k)
+        for (size_t k = 0; k < oBiases.size(); ++k)
             //oBiases[k] = weights[k++];
             oBiases[k] = weights[w++];
     }

@@ -354,7 +354,7 @@ class NeuralNetwork
         for (size_t i = 0; i < trainData.size(); ++i)
             sequence[i] = i;
 
-        int printInterval = maxEpochs/100; // interval to check validation data
+        int printInterval = 1;// maxEpochs*; // interval to check validation data
         while (epoch < maxEpochs)
         {
             ++epoch; // immediately to prevent display when 0
@@ -363,13 +363,13 @@ class NeuralNetwork
             if (0 == epoch % printInterval)
             { //每 printInterval 次才顯示一次資訊
                 
-                cout << "." << flush;
+                //cout << "." << flush;
                 //cout << "epoch = " << epoch << "  training error = " << this->lastTrainError << endl;
-            }
 
-            if(NULL != this->ptrFuncInTraining) //繪製訓練過程testData
-            {
-                this->ptrFuncInTraining(*this,maxEpochs,epoch); 
+                if(NULL != this->ptrFuncInTraining) //繪製訓練過程testData
+                {
+                    this->ptrFuncInTraining(*this,maxEpochs,epoch); 
+                }
             }
 
             Shuffle(sequence); // visit each training data in random order

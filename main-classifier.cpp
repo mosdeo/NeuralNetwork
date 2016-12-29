@@ -4,31 +4,40 @@
 #include "DrawData.hpp"
 using namespace std;
 
-void DrawTraining(LKY::NeuralNetwork& _nn, int maxEpochs, int currentEpochs)
+vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
 {
-    size_t numItems = 80;
-    vector<vector<double>> testData(numItems, vector<double>(3));
+    //make 2*numItems 2D vector
+    vector<vector<double>> trainData(numTariningData, vector<double>(3));
     LKY::NeuralNetwork::Random rnd = LKY::NeuralNetwork::Random(0);
-    
+
     //產生兩個類別的資料點
-    double A_centerX = 1,   A_centerY = 1;
-    double B_centerX = -1, B_centerY = -1;
-    double noiseRate = 2;
-    for (size_t i = 0; i < testData.size(); ++i)
+    double A_centerX = 1.5,   A_centerY = 1.5;
+    double B_centerX = -1.5, B_centerY = -1.5;
+    double noiseRate = 8;
+
+    for (size_t i = 0; i < trainData.size(); ++i)
     {
-        if(i < testData.size()/2)
+        if(i>trainData.size()/2)
         {
-            testData[i][0] = A_centerX + noiseRate*rnd.NextDouble();
-            testData[i][1] = A_centerY + noiseRate*rnd.NextDouble();
-             testData[i].back() = 1;
+            trainData[i][0] = A_centerX + noiseRate*(rnd.NextDouble()-0.5);
+            trainData[i][1] = A_centerY + noiseRate*(rnd.NextDouble()-0.5);
+            trainData[i].back() = 1;
         }
         else
         {
-            testData[i][0] = B_centerX + noiseRate*rnd.NextDouble();
-            testData[i][1] = B_centerY + noiseRate*rnd.NextDouble();
-            testData[i].back() = -1;
+            trainData[i][0] = B_centerX + noiseRate*(rnd.NextDouble()-0.5);
+            trainData[i][1] = B_centerY + noiseRate*(rnd.NextDouble()-0.5);
+            trainData[i].back() = -1;
         }
     }
+
+    return trainData;
+}
+
+void DrawTraining(LKY::NeuralNetwork& _nn, int maxEpochs, int currentEpochs)
+{
+    //size_t numItems = 80;
+    vector<vector<double>> testData = Make2DBinaryTrainingData();
 
     string strPngName = "png/訓練途中" + to_string(currentEpochs) + ".png";
     string strPutText = "Epoch:"+to_string(currentEpochs)+"/"+to_string(maxEpochs)+"  Err:" + to_string(_nn.GetLastTrainError());
@@ -50,36 +59,9 @@ int main(int argc, char* argv[])
     cout << "Programmatically generating " + to_string(numTariningData) + " training data items" << endl;
 
     //make 2*numItems 2D vector
-    vector<vector<double>> trainData(numTariningData, vector<double>(3));
-    LKY::NeuralNetwork::Random rnd = LKY::NeuralNetwork::Random();
+    vector<vector<double>> trainData = Make2DBinaryTrainingData();
 
-    //產生兩個類別的資料點
-    double A_centerX = 1,   A_centerY = 1;
-    double B_centerX = -1, B_centerY = -1;
-    double noiseRate = 2;
-    for (size_t i = 0; i < trainData.size(); ++i)
-    {
-        if(i>trainData.size()/2)
-        {
-            trainData[i][0] = A_centerX + noiseRate*rnd.NextDouble();
-            trainData[i][1] = A_centerY + noiseRate*rnd.NextDouble();
-            trainData[i].back() = 1;
-        }
-        else
-        {
-            trainData[i][0] = B_centerX + noiseRate*rnd.NextDouble();
-            trainData[i][1] = B_centerY + noiseRate*rnd.NextDouble();
-            trainData[i].back() = -1;
-        }
-    }
-    cout << endl;
-    cout << "Training data:" << endl;
-
-    //Draw2DClassifierData("訓練資料",trainData, nn,"Training Data");
-    cv::waitKey(3000);
-    cv::destroyWindow("訓練資料");
-
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(2, 2, 2, statrTime);
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(2, 8, 2, statrTime);
     nn.SetClassification(); //設定為分類器
     nn.ShowWeights();//訓練前
 

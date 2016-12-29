@@ -5,7 +5,7 @@
     "isShellCommand": true,
     "showOutput": "always",
     "args": [
-            "main-classification.cpp",
+            "main.cpp",
             //"main-regression.cpp",
             "-Wall",
             "-pthread",

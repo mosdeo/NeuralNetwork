@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <algorithm> // std::random_shuffle
+#include <thread>
 #include <cmath>
 #include <vector>
 using namespace std;
@@ -12,18 +13,26 @@ namespace LKY
 {
 class NeuralNetwork
 {
+    //各層節點數目
     private: int numInput; // number input nodes
     private: int numHidden;
     private: int numOutput;
+    
+    //層到層之間的權重數目
     private: int num_In_to_Hidden; //in-hidden
     private: int num_Hidden_to_Hidden; //hidden-hidden
     private: int num_Hidden_to_Out; //hidden-out
+    
+    //總權重數目
     private: size_t numWeights;
 
-    private: vector<double> inputs;
-    private: vector<double> hiddenNodes1;//存放該節點計算完成後的數值
-    private: vector<double> hiddenNodes2;//存放該節點計算完成後的數值
-    private: vector<double> outputs;
+    //各層節點
+    private: vector<double> inputNodes;  //輸入層
+    private: vector<double> hiddenNodes1;//第1隱藏層
+    private: vector<double> hiddenNodes2;//第2隱藏層
+    private: vector<double> outputNodes; //輸出層
+    
+    //各層權重
     private: vector<vector<double>> ihWeights; // input-hidden
     private: vector<double> h1Biases;
     private: vector<vector<double>> hhWeights; // hidden-hidden
@@ -31,17 +40,15 @@ class NeuralNetwork
     private: vector<vector<double>> hoWeights; // hidden-output
     private: vector<double> oBiases;
 
-    // back-prop momentum specific arrays
-    private: vector<vector<double>> ihPrevWeightsDelta;
-    private: vector<double> h1PrevBiasesDelta;
-    private: vector<vector<double>> hhPrevWeightsDelta;
-    private: vector<double> h2PrevBiasesDelta;
-    private: vector<vector<double>> hoPrevWeightsDelta;
-    private: vector<double> oPrevBiasesDelta;
+    //倒傳遞(back-prop)相關變數
+    private: vector<vector<double>> ihPrevWeightsDelta;//input-hidden權重變化
+    private: vector<double> h1PrevBiasesDelta;         //第1隱藏層截距變化
+    private: vector<vector<double>> hhPrevWeightsDelta;//hidden-hidden權重變化
+    private: vector<double> h2PrevBiasesDelta;         //第2隱藏層截距變化
+    private: vector<vector<double>> hoPrevWeightsDelta;//hidden-output權重變化
+    private: vector<double> oPrevBiasesDelta;          //輸出層截距變化
 
     public: bool isVisualizeTraining = false;
-    private: double lastTrainError;
-    public: double GetLastTrainError(){return this->lastTrainError;}
     private: bool isClassification = false;
     public: void SetClassification()
     {//若輸出層node少於2則不可為分類器，只能做回歸用
@@ -56,12 +63,15 @@ class NeuralNetwork
         }
     }
 
+    private: vector<double> trainError;
+    public: vector<double> GetTrainError(){return this->trainError;}
+
     public: ~NeuralNetwork()
     {
-        this->inputs.clear();
+        this->inputNodes.clear();
         this->hiddenNodes1.clear();
         this->hiddenNodes2.clear();
-        this->outputs.clear();
+        this->outputNodes.clear();
 
         this->ihWeights.clear();
         this->h1Biases.clear();
@@ -109,10 +119,10 @@ class NeuralNetwork
         this->num_Hidden_to_Out = (numHidden * numOutput) + numOutput; //hidden-out
         this->numWeights = this->num_In_to_Hidden + this->num_Hidden_to_Hidden + this->num_Hidden_to_Out;
 
-        this->inputs.resize(numInput);
+        this->inputNodes.resize(numInput);
         this->hiddenNodes1.resize(numHidden);
         this->hiddenNodes2.resize(numHidden);
-        this->outputs.resize(numOutput);
+        this->outputNodes.resize(numOutput);
 
         this->ihWeights = MakeMatrix(numInput, numHidden, 0.0);
         this->h1Biases.resize(numHidden);
@@ -254,13 +264,13 @@ class NeuralNetwork
         vector<double> h2Sums(numHidden);// hidden nodes sums scratch array
         vector<double> oSums(numOutput); // output nodes sums
 
-        for (int i = 0; i < numInput; ++i) // copy x-values to inputs
-            this->inputs[i] = xValues[i];
+        for (int i = 0; i < numInput; ++i) // copy x-values to inputNodes
+            this->inputNodes[i] = xValues[i];
 
         //First hidden node compute
-        for (int j = 0; j < numHidden; ++j) // compute i-h sum of weights * inputs
+        for (int j = 0; j < numHidden; ++j) // compute i-h sum of weights * inputNodes
             for (int i = 0; i < numInput; ++i)
-                h1Sums[j] += this->inputs[i] * this->ihWeights[i][j]; // note +=
+                h1Sums[j] += this->inputNodes[i] * this->ihWeights[i][j]; // note +=
 
         for (int j = 0; j < numHidden; ++j) // add biases to input-to-hidden sums
             h1Sums[j] += this->h1Biases[j];
@@ -270,7 +280,7 @@ class NeuralNetwork
 
 
         //Second hidden node compute
-        for (int j = 0; j < numHidden; ++j) // compute i-h sum of weights * inputs
+        for (int j = 0; j < numHidden; ++j) // compute i-h sum of weights * inputNodes
             for (int i = 0; i < numHidden; ++i)
                 h2Sums[j] += this->hiddenNodes1[j] * this->hhWeights[i][j]; // note +=
 
@@ -289,10 +299,10 @@ class NeuralNetwork
         for (int k = 0; k < numOutput; ++k) // add biases to input-to-hidden sums
             oSums[k] += oBiases[k];
 
-        std::copy(oSums.begin(), oSums.begin() + this->numOutput, this->outputs.begin()); // copy without activation
+        std::copy(oSums.begin(), oSums.begin() + this->numOutput, this->outputNodes.begin()); // copy without activation
 
         vector<double> retResult(numOutput); // could define a GetOutputs
-        std::copy(this->outputs.begin(), this->outputs.begin() + this->numOutput, retResult.begin());
+        std::copy(this->outputNodes.begin(), this->outputNodes.begin() + this->numOutput, retResult.begin());
 
         //根據演算法的不同，決定輸出層是否要疊上softmax
         return (this->isClassification ? this->Softmax(retResult) : retResult );
@@ -326,7 +336,7 @@ class NeuralNetwork
         return result; // now scaled so that xi sum to 1.0
     }
 
-    public: void (*ptrFuncInTraining)(LKY::NeuralNetwork&,int,int) = NULL;
+    public: void (*eventInTraining)(LKY::NeuralNetwork,int,int) = NULL;
     public: void Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
     {
         // train using back-prop
@@ -347,29 +357,23 @@ class NeuralNetwork
 
         // train a back-prop style NN regression using learning rate and momentum
         int epoch = 0;
-        vector<double> xValues(numInput);  // inputs
+        vector<double> xValues(numInput);  // inputNodes
         vector<double> tValues(numOutput); // target values
 
         vector<int> sequence(trainData.size());
         for (size_t i = 0; i < trainData.size(); ++i)
             sequence[i] = i;
 
-        int printInterval = 1;// maxEpochs*; // interval to check validation data
         while (epoch < maxEpochs)
         {
             ++epoch; // immediately to prevent display when 0
-            this->lastTrainError = Error(trainData); //計算當下訓練誤差
+            this->trainError.push_back(this->Error(trainData)); //計算當下訓練誤差,並存入
 
-            if (0 == epoch % printInterval)
-            { //每 printInterval 次才顯示一次資訊
-                
-                //cout << "." << flush;
-                //cout << "epoch = " << epoch << "  training error = " << this->lastTrainError << endl;
-
-                if(NULL != this->ptrFuncInTraining) //繪製訓練過程testData
-                {
-                    this->ptrFuncInTraining(*this,maxEpochs,epoch); 
-                }
+            if(NULL != this->eventInTraining) //繪製訓練過程testData
+            {//呼叫事件
+                //this->eventInTraining(*this,maxEpochs,epoch);
+                thread th(this->eventInTraining, *this, maxEpochs, epoch);
+                th.join();
             }
 
             Shuffle(sequence); // visit each training data in random order
@@ -382,13 +386,13 @@ class NeuralNetwork
 
                 ComputeOutputs(xValues); // copy xValues in, compute outputs
 
-                // indices: i = inputs, j = hiddens, k = outputs
+                // indices: i = inputNodes, j = hiddens, k = outputs
 
                 // 1. compute output nodes signals (assumes constant activation)
                 for (int k = 0; k < numOutput; ++k)
                 {//計算輸出與目標的差值
                     double derivative = 1.0; // for dummy output activation f'
-                    oSignals[k] = (tValues[k] - outputs[k]) * derivative;
+                    oSignals[k] = (tValues[k] - outputNodes[k]) * derivative;
                 }
 
                 // 2. compute hidden-to-output weights gradients using output signals
@@ -408,8 +412,8 @@ class NeuralNetwork
                     {
                         sum += oSignals[k] * hoWeights[j][k];
                     }
-                    //double derivative = (1 + hiddenNodes2[j]) * (1 - hiddenNodes2[j]); // for tanh
-                    double derivative = 1 - pow(hiddenNodes2[j],2); // for tanh
+                    double derivative = (1 + hiddenNodes2[j]) * (1 - hiddenNodes2[j]); // for tanh
+                    //double derivative = 1 - pow(hiddenNodes2[j],2); // for tanh
                     h2Signals[j] = sum * derivative;
                 }
 
@@ -431,8 +435,8 @@ class NeuralNetwork
                     {
                         sum += h2Signals[k] * hhWeights[j][k];
                     }
-                    //double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
-                    double derivative = 1 - pow(hiddenNodes1[j],2); // for tanh
+                    double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
+                    //double derivative = 1 - pow(hiddenNodes1[j],2); // for tanh
                     h1Signals[j] = sum * derivative;
                 }
 
@@ -440,7 +444,7 @@ class NeuralNetwork
                 // 4. compute input-hidden weights gradients
                 for (int i = 0; i < numInput; ++i)
                     for (int j = 0; j < numHidden; ++j)
-                        ihGrads[i][j] = h1Signals[j] * inputs[i];
+                        ihGrads[i][j] = h1Signals[j] * inputNodes[i];
 
                 // 4b. compute hidden node biases gradienys
                 for (int j = 0; j < numHidden; ++j)

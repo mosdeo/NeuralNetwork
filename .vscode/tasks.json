@@ -4,9 +4,11 @@
     "command": "g++",
     "isShellCommand": true,
     "showOutput": "always",
-    "args": ["main-classifier.cpp",
+    "args": [
+            "main-classification.cpp",
+            //"main-regression.cpp",
             "-Wall",
-            //"-pthread",
+            "-pthread",
             "-I /usr/include/opencv2",
             "-L /usr/lib",
             "-lopencv_core",

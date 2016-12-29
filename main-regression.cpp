@@ -4,7 +4,7 @@
 #include "DrawData.hpp"
 using namespace std;
 
-void DrawTraining(LKY::NeuralNetwork& _nn, int maxEpochs, int currentEpochs)
+void DrawTraining(LKY::NeuralNetwork _nn, int maxEpochs, int currentEpochs)
 {
     size_t numItems = 120;
     vector<vector<double>> testData(numItems, vector<double>(2));
@@ -16,10 +16,10 @@ void DrawTraining(LKY::NeuralNetwork& _nn, int maxEpochs, int currentEpochs)
     }
 
     string strPngName = "png/訓練途中" + to_string(currentEpochs) + ".png";
-    string strPutText = "Epoch:"+to_string(currentEpochs)+"/"+to_string(maxEpochs)+"  Err:" + to_string(_nn.GetLastTrainError());
+    string strPutText = "Epoch:"+to_string(currentEpochs)+"/"+to_string(maxEpochs)+"  Err:" + to_string(_nn.GetTrainError().back());
 
     //cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
-    DrawData("訓練途中", testData, strPutText);
+    Draw2DRegressionData("訓練途中", testData, strPutText);
 }
 
 int main(int argc, char* argv[])
@@ -57,12 +57,12 @@ int main(int argc, char* argv[])
     // cv::destroyWindow("訓練資料");
 
     LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 12, 1, statrTime);
-    nn.ShowWeights();//訓練前
+    //nn.ShowWeights();//訓練前
 
     int maxEpochs = 10000;
     double learnRate = 0.0012;
     double momentum  = 0.0003;
-    nn.ptrFuncInTraining = DrawTraining;//將包有視覺化的事件傳入
+    nn.eventInTraining = DrawTraining;//將包有視覺化的事件傳入
     nn.Train(trainData, maxEpochs, learnRate, momentum);
 
     cout << "\nEnd demo\n";

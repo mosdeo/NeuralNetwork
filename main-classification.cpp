@@ -2,6 +2,7 @@
 #include "opencv2/opencv.hpp"
 #include <chrono>
 #include "DrawData.hpp"
+#include "classifyCircleData.hpp"
 using namespace std;
 
 vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
@@ -13,7 +14,7 @@ vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
     //產生兩個類別的資料點
     double A_centerX = 1.5,   A_centerY = 1.5;
     double B_centerX = -1.5, B_centerY = -1.5;
-    double noiseRate = 8;
+    double noiseRate = 7;
 
     for (size_t i = 0; i < trainData.size(); ++i)
     {
@@ -34,15 +35,15 @@ vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
     return trainData;
 }
 
-void DrawTraining(LKY::NeuralNetwork& _nn, int maxEpochs, int currentEpochs)
+void DrawTraining(LKY::NeuralNetwork _nn, int maxEpochs, int currentEpochs)
 {   //size_t numItems = 80;
-    vector<vector<double>> testData = Make2DBinaryTrainingData();
+    vector<vector<double>> testData = classifyCircleData();//Make2DBinaryTrainingData();
 
     string strPngName = "png/訓練途中" + to_string(currentEpochs) + ".png";
-    string strPutText = "Epoch:"+to_string(currentEpochs)+"/"+to_string(maxEpochs)+"  Err:" + to_string(_nn.GetLastTrainError());
+    string strPutText = "Epoch:"+to_string(currentEpochs)+"/"+to_string(maxEpochs)+"  Err:" + to_string(_nn.GetTrainError().back());
 
     //cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
-    Draw2DClassifierData("訓練途中", testData, _nn, strPutText);
+    Draw2DClassificationData("訓練途中", testData, _nn, strPutText);
     //fgetc(stdin);
 }
 
@@ -59,16 +60,16 @@ int main(int argc, char* argv[])
 
     //make 2*numItems 2D vector
     //產生兩個類別的資料點
-    vector<vector<double>> trainData = Make2DBinaryTrainingData();
+    vector<vector<double>> trainData = classifyCircleData();//Make2DBinaryTrainingData();
 
     LKY::NeuralNetwork nn = LKY::NeuralNetwork(2, 8, 2, statrTime);
     nn.SetClassification(); //設定為分類器
-    nn.ShowWeights();//訓練前
+    //nn.ShowWeights();//訓練前
 
     int maxEpochs = 100000;
     double learnRate = 0.0012;
     double momentum  = 0.0003;
-    nn.ptrFuncInTraining = DrawTraining;//將包有視覺化的事件傳入
+    nn.eventInTraining = DrawTraining;//將包有視覺化的事件傳入
     nn.Train(trainData, maxEpochs, learnRate, momentum);
 
     cout << "\nEnd demo\n";

@@ -4,7 +4,7 @@
 #include <opencv2/opencv.hpp>
 using namespace std;
 
-cv::Mat Draw2DClassifierData(string strWindowName ,vector<vector<double>> XYData, LKY::NeuralNetwork& _nn, string strPutText="LKY",
+cv::Mat Draw2DClassificationData(string strWindowName ,vector<vector<double>> XYData, LKY::NeuralNetwork& _nn, string strPutText="LKY",
     double Xmin = -10, double Xmax = 10, double Ymin = -10, double Ymax = 10)
 {
     cv::Size canvasSize(400, 400); //畫布大小
@@ -15,21 +15,24 @@ cv::Mat Draw2DClassifierData(string strWindowName ,vector<vector<double>> XYData
     double YscaleRate = canvasSize.height/(Ymax-Ymin);
     
     //寫入機率密度分佈
-    for (int x = 0 ; x < canvasSize.width ; x++)
+    for (int pixel_X = 0 ; pixel_X < canvasSize.width ; pixel_X++)
     {
-        for (int y = 0 ; y < canvasSize.height ; y++)
+        for (int pixel_Y = 0 ; pixel_Y < canvasSize.height ; pixel_Y++)
         {
-            double resvY = y/YscaleRate + Ymin; 
-            double resvX = x/XscaleRate + Xmin;
+            double resvY = pixel_Y/YscaleRate + Ymin; 
+            double resvX = pixel_X/XscaleRate + Xmin;
             vector<double> result = _nn.ComputeOutputs(vector<double>{resvX,resvY});
 
             if(result[0] < result[1])
             {
-                canvas.at<cv::Vec3b>(y, x) = cv::Vec3b(255*2*result[0], 255, 255*2*result[0]);
+                //canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*result[0], 255, 255*2*result[0]);
+                canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*(int)(result[0]+0.5), 255, 255*2*(int)(result[0]+0.5));
+
             }
             if(result[1] < result[0])
             {
-                canvas.at<cv::Vec3b>(y, x) = cv::Vec3b(255*2*result[1], 255*2*result[1], 255);
+                //canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*result[1], 255*2*result[1], 255);
+                canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*(int)(result[1]+0.5), 255*2*(int)(result[1]+0.5), 255);
             }
         }
     }
@@ -41,7 +44,7 @@ cv::Mat Draw2DClassifierData(string strWindowName ,vector<vector<double>> XYData
         int newX = XscaleRate*(XYData[i][0]-Xmin);
 
         cv::Scalar circleColor;
-        if(XYData[i].back()== 1){circleColor = cv::Scalar(0, 0, 255);}//鮮紅色
+        if(XYData[i].back()== 1){circleColor = cv::Scalar(0, 0, 205);}//鮮紅色
         if(XYData[i].back()==-1){circleColor = cv::Scalar(0, 205, 0);}//深綠色onst
 
         const int radius = 5;
@@ -49,6 +52,7 @@ cv::Mat Draw2DClassifierData(string strWindowName ,vector<vector<double>> XYData
         cv::circle(canvas, cv::Point(newY, newX), radius, circleColor, thickness);
     }
 
+    //cv::resize(canvas,canvas,cv::Size(800,800));
     cv::putText(canvas,strPutText.c_str(), cv::Point(20,40), cv::FONT_HERSHEY_COMPLEX,0.5, cv::Scalar(0x00));
     cv::putText(canvas,"Lin Kao-Yuan, mosdeo@gmail.com", cv::Point(20,canvas.rows-20), cv::FONT_HERSHEY_COMPLEX,0.5, cv::Scalar(0x00));
 

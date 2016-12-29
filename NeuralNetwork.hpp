@@ -336,7 +336,7 @@ class NeuralNetwork
         return result; // now scaled so that xi sum to 1.0
     }
 
-    public: void (*eventInTraining)(LKY::NeuralNetwork,int,int) = NULL;
+    public: void (*eventInTraining)(LKY::NeuralNetwork,int,int, const vector<vector<double>>& displayData) = NULL;
     public: void Train(vector<vector<double>> trainData, int maxEpochs, double learnRate, double momentum)
     {
         // train using back-prop
@@ -372,7 +372,7 @@ class NeuralNetwork
             if(NULL != this->eventInTraining) //繪製訓練過程testData
             {//呼叫事件
                 //this->eventInTraining(*this,maxEpochs,epoch);
-                thread th(this->eventInTraining, *this, maxEpochs, epoch);
+                thread th(this->eventInTraining, *this, maxEpochs, epoch, trainData);
                 th.join();
             }
 

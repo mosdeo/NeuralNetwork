@@ -1,8 +1,7 @@
 #include "NeuralNetwork.hpp"
 #include "opencv2/opencv.hpp"
 #include <chrono>
-#include "DrawData.hpp"
-#include "classifyCircleData.hpp"
+#include "DataSet.hpp"
 using namespace std;
 
 vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
@@ -35,15 +34,13 @@ vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
     return trainData;
 }
 
-void DrawTraining(LKY::NeuralNetwork _nn, int maxEpochs, int currentEpochs)
+void DrawTraining(LKY::NeuralNetwork _nn, int maxEpochs, int currentEpochs, const vector<vector<double>>& displayData)
 {   //size_t numItems = 80;
-    vector<vector<double>> testData = classifyCircleData();//Make2DBinaryTrainingData();
-
     string strPngName = "png/訓練途中" + to_string(currentEpochs) + ".png";
     string strPutText = "Epoch:"+to_string(currentEpochs)+"/"+to_string(maxEpochs)+"  Err:" + to_string(_nn.GetTrainError().back());
 
-    //cv::imwrite(strPngName.c_str(),DrawData("訓練途中", testData, strPutText));
-    Draw2DClassificationData("訓練途中", testData, _nn, strPutText);
+    //cv::imwrite(strPngName.c_str(),DrawData("訓練途中", displayData, strPutText));
+    Draw2DClassificationData("訓練途中", displayData, _nn, strPutText);
     //fgetc(stdin);
 }
 
@@ -67,7 +64,7 @@ int main(int argc, char* argv[])
     //nn.ShowWeights();//訓練前
 
     int maxEpochs = 100000;
-    double learnRate = 0.0012;
+    double learnRate = 0.0016;
     double momentum  = 0.0003;
     nn.eventInTraining = DrawTraining;//將包有視覺化的事件傳入
     nn.Train(trainData, maxEpochs, learnRate, momentum);

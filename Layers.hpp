@@ -72,8 +72,9 @@ class HiddenLayer: private Layer
     }
 
     public: void InitializeWeights()
-    {
+    {   
         this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+        cout << "completed hidden Layer InitializeWeights()" << endl;
     }
 
     private: vector<double> Activation(vector<double> nodeSum)
@@ -125,11 +126,10 @@ class OutputLayer: private Layer
 
         this->nodes  = vector<double>(numNodes);
         this->outBiases = vector<double>(numNodes,0); //numNodes double with value 0
-        
     }
 
     public: void InitializeWeights()
-    {
+    {cout << "output Layer InitializeWeights()" << endl;
         this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
     }
 

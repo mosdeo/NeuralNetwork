@@ -4,17 +4,16 @@
 #include "DrawData.hpp"
 using namespace std;
 
-
-vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 80)
+vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
 {
     //make 2*numItems 2D vector
     vector<vector<double>> trainData(numTariningData, vector<double>(3));
-    LKY::NeuralNetwork::Random rnd = LKY::NeuralNetwork::Random(1);
+    LKY::NeuralNetwork::Random rnd = LKY::NeuralNetwork::Random(0);
 
     //產生兩個類別的資料點
-    double A_centerX = 1, A_centerY = 0;
-    double B_centerX =-1, B_centerY = 0;
-    double noiseRate = 1;
+    double A_centerX = 1.5,   A_centerY = 1.5;
+    double B_centerX = -1.5, B_centerY = -1.5;
+    double noiseRate = 8;
 
     for (size_t i = 0; i < trainData.size(); ++i)
     {
@@ -22,13 +21,13 @@ vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 80)
         {
             trainData[i][0] = A_centerX + noiseRate*(rnd.NextDouble()-0.5);
             trainData[i][1] = A_centerY + noiseRate*(rnd.NextDouble()-0.5);
-            trainData[i].back() = -1;
+            trainData[i].back() = 1;
         }
         else
         {
             trainData[i][0] = B_centerX + noiseRate*(rnd.NextDouble()-0.5);
             trainData[i][1] = B_centerY + noiseRate*(rnd.NextDouble()-0.5);
-            trainData[i].back() = +1;
+            trainData[i].back() = -1;
         }
     }
 
@@ -36,7 +35,7 @@ vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 80)
 }
 
 void DrawTraining(LKY::NeuralNetwork& _nn, int maxEpochs, int currentEpochs)
-{
+{   //size_t numItems = 80;
     vector<vector<double>> testData = Make2DBinaryTrainingData();
 
     string strPngName = "png/訓練途中" + to_string(currentEpochs) + ".png";
@@ -62,7 +61,7 @@ int main(int argc, char* argv[])
     //產生兩個類別的資料點
     vector<vector<double>> trainData = Make2DBinaryTrainingData();
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(2, 2, 2, time(NULL));
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(2, 8, 2, statrTime);
     nn.SetClassification(); //設定為分類器
     nn.ShowWeights();//訓練前
 

@@ -129,8 +129,9 @@ class OutputLayer: private Layer
     }
 
     public: void InitializeWeights()
-    {cout << "output Layer InitializeWeights()" << endl;
+    {
         this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+        cout << "completed output Layer InitializeWeights()" << endl;
     }
 
     private: vector<double> Activation(vector<double> nodeSum)

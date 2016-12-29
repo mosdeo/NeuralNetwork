@@ -6,6 +6,7 @@
     "showOutput": "always",
     "args": [
             "main.cpp",
+            //"main-classification.cpp",
             //"main-regression.cpp",
             "-Wall",
             "-pthread",
@@ -15,8 +16,8 @@
             "-lopencv_highgui",
             "-lopencv_imgproc",
             "/usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.3.0",
-            //"-g",
-            "-Ofast", 
+            "-g",
+            //"-Ofast", 
             "-std=c++14",
             //"-D_GLIBCXX_USE_C99",
             "-o",

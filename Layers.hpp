@@ -87,8 +87,8 @@ class HiddenLayer: private Layer
         const double hi = 1/(sqrt(this->nodes.size()));
         const double lo = -hi;
 
-        //std::random_device rd;     // only used once to initialise (seed) engine
-        std::mt19937 rng(0);    // random-number engine used (Mersenne-Twister in this case)
+        std::random_device rd;     // only used once to initialise (seed) engine
+        std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
         std::uniform_real_distribution<double> uni_noise(lo, hi); // guaranteed unbiased
 
         for (size_t j = 0; j < this->intoWeights.size(); ++j)
@@ -114,8 +114,14 @@ class HiddenLayer: private Layer
     {
         //節點的乘積與和
         for (size_t j = 0; j < this->nodes.size(); ++j) // compute i-h sum of weights * inputNodes
+        {
             for (size_t i = 0; i < this->previousLayer->nodes.size(); ++i)
+            {
                 this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
+            }
+
+            this->nodes[j] += this->hiddenBiases[j];
+        }
 
         //活化函數
         if(NULL == this->activation)
@@ -127,10 +133,45 @@ class HiddenLayer: private Layer
         this->nodes = this->activation->Forward(this->nodes);
     }
 
-    public: void BackPropagation()
+    public: void BackPropagation(double learningRate)
     {
-        vector<vector<double>> grads = MakeMatrix(this->nodes.size(), this->nextLayer->nodes.size(), 1.0); // hidden-to-output weights gradients
-        vector<double> biasesGrads(this->nodes.size()); // output biases gradients
+        vector<vector<double>> deltaWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+        vector<double> deltaGradients(this->hiddenBiases.size());
+
+        // if(desiredOutValues.size() != this->nodes.size())
+        // {
+        //     cout << "ERROR: desiredOutValues.size() != this->nodes.size()" << endl;
+        //     exit(EXIT_FAILURE);
+        // }
+
+        // //權重變化計算與更新
+        // for (size_t j = 0; j < deltaWeights.size(); ++j)
+        // {
+        //     if(deltaWeights[j].size() != this->intoWeights[j].size())
+        //     {//長度檢查
+        //         cout << "ERROR: deltaWeights[j].size() != this->intoWeights[j]" << endl;
+        //         exit(EXIT_FAILURE);
+        //     }
+
+        //     for (size_t i = 0; i < deltaWeights[j].size(); ++i)
+        //     {
+        //         //計算輸出與目標的差值
+        //         //∆w kj = ε (t k − a k )a k (1 − a k ) a j
+        //         double err = desiredOutValues[i] - this->nodes[i];
+        //         deltaWeights[j][i] = err*this->activation->Derivative(this->nodes[i])*this->previousLayer->nodes[j];
+                
+        //         //更新權重
+        //         this->intoWeights[j][i] += learningRate*deltaWeights[j][i];
+        //     }
+        // }
+
+        // //基底變化計算與更新
+        // for (size_t i = 0; i < deltaGradients.size(); ++i)
+        // {
+        //     double err = desiredOutValues[i] - this->nodes[i];
+        //     deltaGradients[i] = err*this->activation->Derivative(this->nodes[i]);
+        //     this->outBiases[i] += deltaGradients[i]; 
+        // }
     }
 
     public: vector<double> GetOutput()
@@ -171,8 +212,8 @@ class OutputLayer: private Layer
         const double hi = 1/(sqrt(this->nodes.size()));
         const double lo = -hi;
 
-        //std::random_device rd;     // only used once to initialise (seed) engine
-        std::mt19937 rng(0);    // random-number engine used (Mersenne-Twister in this case)
+        std::random_device rd;     // only used once to initialise (seed) engine
+        std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
         std::uniform_real_distribution<double> uni_noise(lo, hi); // guaranteed unbiased
 
         for (size_t j = 0; j < this->intoWeights.size(); ++j)
@@ -198,8 +239,14 @@ class OutputLayer: private Layer
     {
         //節點的乘積與和
         for (size_t j = 0; j < this->nodes.size(); ++j) // compute i-h sum of weights * inputNodes
+        {
             for (size_t i = 0; i < this->previousLayer->nodes.size(); ++i)
+            {
                 this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
+            }
+
+            this->nodes[j] += this->outBiases[j];
+        }
 
         //活化函數
         if(NULL == this->activation)
@@ -237,11 +284,13 @@ class OutputLayer: private Layer
                 //計算輸出與目標的差值
                 //∆w kj = ε (t k − a k )a k (1 − a k ) a j
                 double err = desiredOutValues[i] - this->nodes[i];
-                deltaWeights[j][i] = err*this->activation->Derivative(this->nodes[i])*this->previousLayer->nodes[j];
+                double activationOutput = this->activation->Derivative(this->nodes[i]);
+                printf("err = %lf, activationOutput=%lf, previousLayer->nodes[j]=%lf\n" ,err , activationOutput, previousLayer->nodes[j]);
+                deltaWeights[j][i] = err*activationOutput*this->previousLayer->nodes[j];
                 
                 //更新權重
                 this->intoWeights[j][i] += learningRate*deltaWeights[j][i];
-            }
+            }cout << endl;
         }
 
         //基底變化計算與更新

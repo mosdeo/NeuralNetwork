@@ -69,19 +69,18 @@ class LKYDeepNN
      public: vector<double> ForwardPropagation(vector<double> inputArray)
      {
         //輸入資料到輸入層節點
-        cout << "輸入資料到輸入層節點" << endl;
+        //cout << "輸入資料到輸入層節點" << endl;
         this->inputLayer->Input(inputArray);
         
         //隱藏層順傳遞
-        cout << "隱藏層順傳遞" << endl;
+        //cout << "隱藏層順傳遞" << endl;
         for (auto hiddenLayer : hiddenLayerArray)
         {
-            cout << "test" << endl;
             hiddenLayer->ForwardPropagation();
         }
         
         //最後一個隱藏層到輸出層的順傳遞
-        cout << "最後一個隱藏層到輸出層的順傳遞" << endl;
+        //cout << "最後一個隱藏層到輸出層的順傳遞" << endl;
         outputLayer->ForwardPropagation();
 
         //回傳輸出層輸出
@@ -92,5 +91,9 @@ class LKYDeepNN
      public: void Training(double learningRate, vector<double> desiredOutValues)
      {
          outputLayer->BackPropagation(learningRate, desiredOutValues);
+         for(vector<HiddenLayer*>::reverse_iterator r_it=hiddenLayerArray.rbegin(); r_it!=hiddenLayerArray.rend(); r_it++)
+         {
+             (*r_it)->BackPropagation(learningRate);
+         }
      }
 };

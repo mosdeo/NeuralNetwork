@@ -9,12 +9,24 @@ int main()
 
     vector<double> outputArray = nn.ForwardPropagation(vector<double>{2,2});
 
-    //print
+    
     for (double const output : outputArray)
-    {
+    {//print
         printf("%lf, ",output);
     }cout << endl;
     cout << "順傳遞測試完成" <<endl;
 
-    nn.Training(0.05, vector<double>(2,0));
+    for (double const output : outputArray)
+    {//print
+        printf("%lf, ",output);
+    }cout << endl;
+    cout << "順傳遞測試完成" <<endl;
+
+    nn.Training(10, vector<double>(2,0));
+
+    for (double const output : outputArray)
+    {//print
+        printf("%lf, ",output);
+    }cout << endl;
+    cout << "順傳遞測試完成" <<endl;
 }

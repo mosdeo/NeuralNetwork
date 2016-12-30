@@ -18,7 +18,6 @@ class Tanh: public Activation
         for (size_t i = 0; i < nodeSum.size(); ++i)
         {
             result[i] = tanh(nodeSum[i]);
-            cout << "result[i]=" << result[i] << endl;
         }
 
         return result;

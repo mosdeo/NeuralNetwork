@@ -14,11 +14,8 @@ class Tanh: public Activation
     {
         vector<double> result(nodeSum.size());
         
-
-        for (size_t i = 0; i < nodeSum.size(); ++i)
-        {
-            result[i] = tanh(nodeSum[i]);
-        }
+        for (size_t i = 0; i < nodeSum.size(); ++i){
+            result[i] = tanh(nodeSum[i]);}
 
         return result;
     }
@@ -27,16 +24,29 @@ class Tanh: public Activation
     {
         return 1 - pow(tanh(x), 2);
     }
+};
 
-    // public: vector<double> Derivative(const vector<double>& nodeSum)
-    // {
-    //     vector<double> result(nodeSum.size());
+class ReLU: public Activation
+{
+    public: vector<double> Forward(const vector<double>& nodeSum)
+    {
+        vector<double> result(nodeSum.size());
+        
+        for (size_t i = 0; i < nodeSum.size(); ++i)
+        {
+            (nodeSum[i] >= 0) ?
+                result[i] = nodeSum[i]:
+                result[i] = 0;
+        }
 
-    //     for (size_t i = 0; i < nodeSum.size(); ++i)
-    //     {
-    //         result[i] = 1 - pow(tanh(nodeSum[i]), 2);
-    //     }
+        return result;
+    }
 
-    //     return result;
-    // }
+    public: double Derivative(const double x)
+    {
+        if(x >= 0){
+            return 1;}
+        else{
+            return 0.01;}
+    }
 };

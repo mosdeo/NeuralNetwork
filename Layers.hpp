@@ -129,8 +129,10 @@ class HiddenLayer: private Layer
             cout << "ERROR: 忘記配置活化函數" << endl;
             exit(EXIT_FAILURE);
         }
-
-        this->nodes = this->activation->Forward(this->nodes);
+        else
+        {
+            this->nodes = this->activation->Forward(this->nodes);
+        }
     }
 
     public: void BackPropagation(double learningRate)
@@ -254,9 +256,10 @@ class OutputLayer: private Layer
             cout << "ERROR: 忘記配置活化函數" << endl;
             exit(EXIT_FAILURE);
         }
-        
-        //活化函數
-        this->nodes = this->activation->Forward(this->nodes);
+        else
+        {
+            this->nodes = this->activation->Forward(this->nodes);
+        }
     }
 
     public: void BackPropagation(double learningRate, vector<double> desiredOutValues)

@@ -18,7 +18,7 @@ class LKYDeepNN
         {
             int numNode = numHiddenNodes.front();
             hiddenLayerArray.front() = new HiddenLayer(numNode, (Layer*)inputLayer, (Layer*)outputLayer);
-            hiddenLayerArray.front()->SetActivation(new ReLU());
+            hiddenLayerArray.front()->SetActivation(new Tanh());
         }
         else
         {
@@ -41,7 +41,7 @@ class LKYDeepNN
                 }
 
                 //活化函數配置
-                (*it)->SetActivation(new ReLU());
+                (*it)->SetActivation(new Tanh());
             }
         }
 
@@ -49,7 +49,7 @@ class LKYDeepNN
         outputLayer = new OutputLayer(numOutputNodes, hiddenLayerArray.back());
         
         //輸出層活化函數配置
-        outputLayer->SetActivation(new ReLU());
+        outputLayer->SetActivation(new Tanh());
 
         //統一權重初始化
         this->InitializeWeights();

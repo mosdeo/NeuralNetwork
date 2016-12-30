@@ -87,8 +87,8 @@ class HiddenLayer: private Layer
         const double hi = 1/(sqrt(this->nodes.size()));
         const double lo = -hi;
 
-        std::random_device rd;     // only used once to initialise (seed) engine
-        std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+        //std::random_device rd;     // only used once to initialise (seed) engine
+        std::mt19937 rng(0);    // random-number engine used (Mersenne-Twister in this case)
         std::uniform_real_distribution<double> uni_noise(lo, hi); // guaranteed unbiased
 
         for (size_t j = 0; j < this->intoWeights.size(); ++j)
@@ -99,16 +99,6 @@ class HiddenLayer: private Layer
 
         cout << "completed hidden Layer InitializeWeights()" << endl;
     }
-
-    // private: vector<double> Activation(vector<double> nodeSum)
-    // {
-    //     vector<double> result(nodeSum.size());
-
-    //     for (size_t i = 0; i < nodeSum.size(); ++i)
-    //         result[i] = nodeSum[i];//暫時先這樣
-
-    //     return result;
-    // }
 
     public: void ForwardPropagation()
     {
@@ -214,8 +204,8 @@ class OutputLayer: private Layer
         const double hi = 1/(sqrt(this->nodes.size()));
         const double lo = -hi;
 
-        std::random_device rd;     // only used once to initialise (seed) engine
-        std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+        //std::random_device rd;     // only used once to initialise (seed) engine
+        std::mt19937 rng(0);    // random-number engine used (Mersenne-Twister in this case)
         std::uniform_real_distribution<double> uni_noise(lo, hi); // guaranteed unbiased
 
         for (size_t j = 0; j < this->intoWeights.size(); ++j)
@@ -226,16 +216,6 @@ class OutputLayer: private Layer
 
         cout << "completed output Layer InitializeWeights()" << endl;
     }
-
-    // private: vector<double> Activation(vector<double> nodeSum)
-    // {
-    //     vector<double> result(nodeSum.size());
-
-    //     for (size_t i = 0; i < nodeSum.size(); ++i)
-    //         result[i] = nodeSum[i];//暫時先這樣
-
-    //     return result;
-    // }
 
     public: void ForwardPropagation()
     {
@@ -292,7 +272,10 @@ class OutputLayer: private Layer
                 deltaWeights[j][i] = err*activationOutput*this->previousLayer->nodes[j];
                 
                 //更新權重
+                printf("update before: %lf, ",this->intoWeights[j][i]);
                 this->intoWeights[j][i] += learningRate*deltaWeights[j][i];
+                printf("update after:  %lf\n",this->intoWeights[j][i]);
+
             }cout << endl;
         }
 

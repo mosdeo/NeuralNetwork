@@ -7,6 +7,8 @@
 #include <thread>
 #include <cmath>
 #include <vector>
+#include "Activation.hpp"
+#include "LossFunction.hpp"
 using namespace std;
 
 namespace LKY
@@ -47,6 +49,9 @@ class NeuralNetwork
     private: vector<double> h2PrevBiasesDelta;         //第2隱藏層截距變化
     private: vector<vector<double>> hoPrevWeightsDelta;//hidden-output權重變化
     private: vector<double> oPrevBiasesDelta;          //輸出層截距變化
+
+    private: Activation* activation = NULL;
+    private: LossFunction* lossFunction = NULL;
 
     public: bool isVisualizeTraining = false;
     private: bool isClassification = false;
@@ -143,7 +148,22 @@ class NeuralNetwork
 
         this->rnd = Random(seed);
         this->InitializeWeights();
+
+        this->activation = new Tanh(); //預設值
+        //this->activation = new ReLU();
+        //this->lossFunction = new CrossEntropy();
+        this->lossFunction = new Diff();
     }                              // ctor
+
+    public: void SetLossFunction(LossFunction* lossFunction)
+    {
+        this->lossFunction = lossFunction;
+    }
+
+    public: void SetActivation(Activation* activation)
+    {
+        this->activation = activation;
+    }
 
     private: static vector<vector<double>> MakeMatrix(int rows, int cols, double v) // helper for ctor, Train
     {
@@ -275,8 +295,10 @@ class NeuralNetwork
         for (int j = 0; j < numHiddenNodes; ++j) // add biases to input-to-hidden sums
             h1Sums[j] += this->h1Biases[j];
 
-        for (int j = 0; j < numHiddenNodes; ++j)        // apply activation
-            this->hiddenNodes1[j] = HyperTan(h1Sums[j]); // hard-coded
+        // apply activation
+        this->hiddenNodes1 = this->activation->Forward(h1Sums);
+        // for (int j = 0; j < numHiddenNodes; ++j)        
+        //     this->hiddenNodes1[j] = HyperTan(h1Sums[j]); // hard-coded
 
 
         //Second hidden node compute
@@ -287,9 +309,10 @@ class NeuralNetwork
         for (int j = 0; j < numHiddenNodes; ++j) // add biases to input-to-hidden sums
             h2Sums[j] += this->h2Biases[j];
 
-        for (int j = 0; j < numHiddenNodes; ++j)        // apply activation
-            this->hiddenNodes2[j] = HyperTan(h2Sums[j]); // hard-coded
-
+        // apply activation
+        this->hiddenNodes2 = this->activation->Forward(h2Sums);
+        // for (int j = 0; j < numHiddenNodes; ++j)        
+        //     this->hiddenNodes2[j] = HyperTan(h2Sums[j]); // hard-coded
 
         //Out node compute
         for (int k = 0; k < numOutputNodes; ++k) // compute h-o sum of weights * hOutputs
@@ -308,15 +331,15 @@ class NeuralNetwork
         return (this->isClassification ? this->Softmax(retResult) : retResult );
     }
 
-    private: static double HyperTan(double x)
-    {
-        if (x < -20.0)
-            return -1.0; // approximation is correct to 30 decimals
-        else if (x > 20.0)
-            return 1.0;
-        else
-            return tanh(x);
-    }
+    // private: static double HyperTan(double x)
+    // {
+    //     if (x < -20.0)
+    //         return -1.0; // approximation is correct to 30 decimals
+    //     else if (x > 20.0)
+    //         return 1.0;
+    //     else
+    //         return tanh(x);
+    // }
 
     private: static vector<double> Softmax(vector<double> oSums)
     {
@@ -392,7 +415,8 @@ class NeuralNetwork
                 for (int k = 0; k < numOutputNodes; ++k)
                 {//計算輸出與目標的差值
                     double derivative = 1.0; // for dummy output activation f'
-                    oSignals[k] = (tValues[k] - outputNodes[k]) * derivative;
+                    //oSignals[k] = (tValues[k] - outputNodes[k]) * derivative;
+                    oSignals[k] = lossFunction->GetCost(tValues[k], outputNodes[k])* derivative;
                 }
 
                 // 2. compute hidden-to-output weights gradients using output signals
@@ -412,8 +436,9 @@ class NeuralNetwork
                     {
                         sum += oSignals[k] * hoWeights[j][k];
                     }
-                    double derivative = (1 + hiddenNodes2[j]) * (1 - hiddenNodes2[j]); // for tanh
+                    //double derivative = (1 + hiddenNodes2[j]) * (1 - hiddenNodes2[j]); // for tanh
                     //double derivative = 1 - pow(hiddenNodes2[j],2); // for tanh
+                    double derivative = this->activation->Derivative(hiddenNodes2[j]);
                     h2Signals[j] = sum * derivative;
                 }
 
@@ -435,8 +460,9 @@ class NeuralNetwork
                     {
                         sum += h2Signals[k] * hhWeights[j][k];
                     }
-                    double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
+                    //double derivative = (1 + hiddenNodes1[j]) * (1 - hiddenNodes1[j]); // for tanh
                     //double derivative = 1 - pow(hiddenNodes1[j],2); // for tanh
+                    double derivative = this->activation->Derivative(hiddenNodes1[j]);
                     h1Signals[j] = sum * derivative;
                 }
 

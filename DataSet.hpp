@@ -6,6 +6,36 @@
 #include <random>
 using namespace std;
 
+vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
+{
+    //make 2*numItems 2D vector
+    vector<vector<double>> trainData(numTariningData, vector<double>(3));
+    LKY::NeuralNetwork::Random rnd = LKY::NeuralNetwork::Random(0);
+
+    //產生兩個類別的資料點
+    double A_centerX = 2,   A_centerY = 2;
+    double B_centerX = -2, B_centerY = -2;
+    double noiseRate = 7;
+
+    for (size_t i = 0; i < trainData.size(); ++i)
+    {
+        if(i>trainData.size()/2)
+        {
+            trainData[i][0] = A_centerX + noiseRate*(rnd.NextDouble()-0.5);
+            trainData[i][1] = A_centerY + noiseRate*(rnd.NextDouble()-0.5);
+            trainData[i].back() = 1;
+        }
+        else
+        {
+            trainData[i][0] = B_centerX + noiseRate*(rnd.NextDouble()-0.5);
+            trainData[i][1] = B_centerY + noiseRate*(rnd.NextDouble()-0.5);
+            trainData[i].back() = -1;
+        }
+    }
+
+    return trainData;
+}
+
 vector<vector<double>> classifyCircleData(int numSamples=80, double noise=0.1)
 {
     vector<vector<double>> points(0, vector<double>(3));
@@ -84,14 +114,14 @@ cv::Mat Draw2DClassificationData(string strWindowName ,vector<vector<double>> XY
 
             if(result[0] < result[1])
             {
-                canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*result[0], 255, 255*2*result[0]);
-                //canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*(int)(result[0]+0.5), 255, 255*2*(int)(result[0]+0.5));
+                //canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*result[0], 255, 255*2*result[0]);
+                canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*(int)(result[0]+0.5), 255, 255*2*(int)(result[0]+0.5));
 
             }
             if(result[1] < result[0])
             {
-                canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*result[1], 255*2*result[1], 255);
-                //canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*(int)(result[1]+0.5), 255*2*(int)(result[1]+0.5), 255);
+                //canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*result[1], 255*2*result[1], 255);
+                canvas.at<cv::Vec3b>(pixel_Y, pixel_X) = cv::Vec3b(255*2*(int)(result[1]+0.5), 255*2*(int)(result[1]+0.5), 255);
             }
         }
     }

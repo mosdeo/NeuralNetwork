@@ -10,6 +10,11 @@ class Activation
 
 class Tanh: public Activation
 {
+    public: Tanh()
+    {
+        cout << "Activation is Tanh." << endl;
+    } 
+
     public: vector<double> Forward(const vector<double>& nodeSum)
     {
         vector<double> result(nodeSum.size());
@@ -28,15 +33,18 @@ class Tanh: public Activation
 
 class ReLU: public Activation
 {
+    public: ReLU()
+    {
+        cout << "Activation is ReLU." << endl;
+    } 
+
     public: vector<double> Forward(const vector<double>& nodeSum)
     {
         vector<double> result(nodeSum.size());
         
         for (size_t i = 0; i < nodeSum.size(); ++i)
         {
-            (nodeSum[i] >= 0) ?
-                result[i] = nodeSum[i]:
-                result[i] = 0;
+            result[i] = max(nodeSum[i],0.0);
         }
 
         return result;

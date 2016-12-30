@@ -4,36 +4,6 @@
 #include "DataSet.hpp"
 using namespace std;
 
-vector<vector<double>> Make2DBinaryTrainingData(int numTariningData = 40)
-{
-    //make 2*numItems 2D vector
-    vector<vector<double>> trainData(numTariningData, vector<double>(3));
-    LKY::NeuralNetwork::Random rnd = LKY::NeuralNetwork::Random(0);
-
-    //產生兩個類別的資料點
-    double A_centerX = 1.5,   A_centerY = 1.5;
-    double B_centerX = -1.5, B_centerY = -1.5;
-    double noiseRate = 7;
-
-    for (size_t i = 0; i < trainData.size(); ++i)
-    {
-        if(i>trainData.size()/2)
-        {
-            trainData[i][0] = A_centerX + noiseRate*(rnd.NextDouble()-0.5);
-            trainData[i][1] = A_centerY + noiseRate*(rnd.NextDouble()-0.5);
-            trainData[i].back() = 1;
-        }
-        else
-        {
-            trainData[i][0] = B_centerX + noiseRate*(rnd.NextDouble()-0.5);
-            trainData[i][1] = B_centerY + noiseRate*(rnd.NextDouble()-0.5);
-            trainData[i].back() = -1;
-        }
-    }
-
-    return trainData;
-}
-
 void DrawTraining(LKY::NeuralNetwork _nn, int maxEpochs, int currentEpochs, const vector<vector<double>>& displayData)
 {   //size_t numItems = 80;
     string strPngName = "png/訓練途中" + to_string(currentEpochs) + ".png";
@@ -57,15 +27,17 @@ int main(int argc, char* argv[])
 
     //make 2*numItems 2D vector
     //產生兩個類別的資料點
-    vector<vector<double>> trainData = classifyCircleData();//Make2DBinaryTrainingData();
+    vector<vector<double>> trainData = Make2DBinaryTrainingData();
 
-    LKY::NeuralNetwork nn = LKY::NeuralNetwork(2, 8, 2, statrTime);
+    LKY::NeuralNetwork nn = LKY::NeuralNetwork(2, 16, 2, statrTime);
     nn.SetClassification(); //設定為分類器
+    //nn.SetActivation(new ReLU());
+    //nn.SetLossFunction(new CrossEntropy());
     //nn.ShowWeights();//訓練前
 
     int maxEpochs = 100000;
-    double learnRate = 0.0016;
-    double momentum  = 0.0003;
+    double learnRate = 0.00005;
+    double momentum  = 0.00005;
     nn.eventInTraining = DrawTraining;//將包有視覺化的事件傳入
     nn.Train(trainData, maxEpochs, learnRate, momentum);
 

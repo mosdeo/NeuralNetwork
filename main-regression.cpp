@@ -1,10 +1,10 @@
 #include "NeuralNetwork.hpp"
 #include "opencv2/opencv.hpp"
 #include <chrono>
-#include "DrawData.hpp"
+#include "DataSet.hpp"
 using namespace std;
 
-void DrawTraining(LKY::NeuralNetwork _nn, int maxEpochs, int currentEpochs)
+void DrawTraining(LKY::NeuralNetwork _nn, int maxEpochs, int currentEpochs, const vector<vector<double>>& displayData)
 {
     size_t numItems = 120;
     vector<vector<double>> testData(numItems, vector<double>(2));
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     for (int i = 0; i < numTariningData; ++i)
     {
         double x = 2*M_PI*rnd.NextDouble(); // [0 to 2PI]
-        double sx = sin(1.5*x);
+        double sx = sin(x);
         trainData[i][0] = x;
         //trainData[i][1] = sin(x);
         trainData[i].back() = sx;
@@ -59,10 +59,11 @@ int main(int argc, char* argv[])
     LKY::NeuralNetwork nn = LKY::NeuralNetwork(1, 12, 1, statrTime);
     //nn.ShowWeights();//訓練前
 
-    int maxEpochs = 10000;
-    double learnRate = 0.0012;
-    double momentum  = 0.0003;
+    int maxEpochs = 1000000;
+    double learnRate = 0.0001;
+    double momentum  = 0.0001;
     nn.eventInTraining = DrawTraining;//將包有視覺化的事件傳入
+    nn.SetActivation(new ReLU());
     nn.Train(trainData, maxEpochs, learnRate, momentum);
 
     cout << "\nEnd demo\n";

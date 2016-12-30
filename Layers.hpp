@@ -63,6 +63,10 @@ class HiddenLayer: private Layer
     protected: Layer* previousLayer;
     protected: Layer* nextLayer;
 
+    //倒傳遞的梯度
+    protected: vector<vector<double>> wGrads;
+    protected: vector<double> oGrads;
+
     //活化函數
     private: Activation* activation = NULL;
     public: void SetActivation(Activation* activation)
@@ -78,6 +82,9 @@ class HiddenLayer: private Layer
 
         this->nodes  = vector<double>(numNodes);
         this->hiddenBiases = vector<double>(numNodes,0); //numNodes double with value 0
+
+        this->wGrads = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 0.0);
+        this->oGrads = vector<double>(this->hiddenBiases.size());
     }
 
     public: void InitializeWeights()
@@ -105,6 +112,7 @@ class HiddenLayer: private Layer
         //節點的乘積與和
         for (size_t j = 0; j < this->nodes.size(); ++j) // compute i-h sum of weights * inputNodes
         {
+            this->nodes[j] = 0;
             for (size_t i = 0; i < this->previousLayer->nodes.size(); ++i)
             {
                 this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
@@ -127,43 +135,8 @@ class HiddenLayer: private Layer
 
     public: void BackPropagation(double learningRate)
     {
-        vector<vector<double>> deltaWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
-        vector<double> deltaGradients(this->hiddenBiases.size());
-
-        // if(desiredOutValues.size() != this->nodes.size())
-        // {
-        //     cout << "ERROR: desiredOutValues.size() != this->nodes.size()" << endl;
-        //     exit(EXIT_FAILURE);
-        // }
-
-        // //權重變化計算與更新
-        // for (size_t j = 0; j < deltaWeights.size(); ++j)
-        // {
-        //     if(deltaWeights[j].size() != this->intoWeights[j].size())
-        //     {//長度檢查
-        //         cout << "ERROR: deltaWeights[j].size() != this->intoWeights[j]" << endl;
-        //         exit(EXIT_FAILURE);
-        //     }
-
-        //     for (size_t i = 0; i < deltaWeights[j].size(); ++i)
-        //     {
-        //         //計算輸出與目標的差值
-        //         //∆w kj = ε (t k − a k )a k (1 − a k ) a j
-        //         double err = desiredOutValues[i] - this->nodes[i];
-        //         deltaWeights[j][i] = err*this->activation->Derivative(this->nodes[i])*this->previousLayer->nodes[j];
-                
-        //         //更新權重
-        //         this->intoWeights[j][i] += learningRate*deltaWeights[j][i];
-        //     }
-        // }
-
-        // //基底變化計算與更新
-        // for (size_t i = 0; i < deltaGradients.size(); ++i)
-        // {
-        //     double err = desiredOutValues[i] - this->nodes[i];
-        //     deltaGradients[i] = err*this->activation->Derivative(this->nodes[i]);
-        //     this->outBiases[i] += deltaGradients[i]; 
-        // }
+        vector<vector<double>> wGrads = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+        vector<double> oGrads(this->hiddenBiases.size());
     }
 
     public: vector<double> GetOutput()
@@ -177,6 +150,10 @@ class OutputLayer: private Layer
     //順向進入的權重與基底
     protected: vector<vector<double>> intoWeights;
     protected: vector<double> outBiases;
+
+    //倒傳遞的梯度
+    protected: vector<vector<double>> wGrads;
+    protected: vector<double> oGrads;
 
     //前層
     protected: HiddenLayer* previousLayer;
@@ -195,6 +172,9 @@ class OutputLayer: private Layer
 
         this->nodes  = vector<double>(numNodes);
         this->outBiases = vector<double>(numNodes,0); //numNodes double with value 0
+
+        this->wGrads = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 0.0);
+        this->oGrads = vector<double>(this->outBiases.size());
     }
 
     public: void InitializeWeights()
@@ -222,6 +202,7 @@ class OutputLayer: private Layer
         //節點的乘積與和
         for (size_t j = 0; j < this->nodes.size(); ++j) // compute i-h sum of weights * inputNodes
         {
+            this->nodes[j] = 0;
             for (size_t i = 0; i < this->previousLayer->nodes.size(); ++i)
             {
                 this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
@@ -244,47 +225,24 @@ class OutputLayer: private Layer
 
     public: void BackPropagation(double learningRate, vector<double> desiredOutValues)
     {
-        vector<vector<double>> deltaWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
-        vector<double> deltaGradients(this->outBiases.size());
-
         if(desiredOutValues.size() != this->nodes.size())
         {
             cout << "ERROR: desiredOutValues.size() != this->nodes.size()" << endl;
             exit(EXIT_FAILURE);
         }
 
-        //權重變化計算與更新
-        for (size_t j = 0; j < deltaWeights.size(); ++j)
+        for(size_t j=0 ; j < this->wGrads.size() ; j++)
         {
-            if(deltaWeights[j].size() != this->intoWeights[j].size())
-            {//長度檢查
-                cout << "ERROR: deltaWeights[j].size() != this->intoWeights[j]" << endl;
-                exit(EXIT_FAILURE);
-            }
-
-            for (size_t i = 0; i < deltaWeights[j].size(); ++i)
+            for(size_t i=0 ; i < this->wGrads[j].size() ; i++)
             {
-                //計算輸出與目標的差值
-                //∆w kj = ε (t k − a k )a k (1 − a k ) a j
-                double err = desiredOutValues[i] - this->nodes[i];
-                double activationOutput = this->activation->Derivative(this->nodes[i]);
-                printf("err = %lf, activationOutput=%lf, previousLayer->nodes[j]=%lf\n" ,err , activationOutput, previousLayer->nodes[j]);
-                deltaWeights[j][i] = err*activationOutput*this->previousLayer->nodes[j];
-                
+                double err = this->nodes[i] - desiredOutValues[i];//Output-target
+                double derivativeActivation = this->activation->Derivative(this->nodes[i]);
+                double pervInput = this->previousLayer->nodes[j];
+                this->wGrads[j][i] = err*derivativeActivation*pervInput;
+
                 //更新權重
-                printf("update before: %lf, ",this->intoWeights[j][i]);
-                this->intoWeights[j][i] += learningRate*deltaWeights[j][i];
-                printf("update after:  %lf\n",this->intoWeights[j][i]);
-
-            }cout << endl;
-        }
-
-        //基底變化計算與更新
-        for (size_t i = 0; i < deltaGradients.size(); ++i)
-        {
-            double err = desiredOutValues[i] - this->nodes[i];
-            deltaGradients[i] = err*this->activation->Derivative(this->nodes[i]);
-            this->outBiases[i] += deltaGradients[i]; 
+                this->intoWeights[j][i] -= learningRate*this->wGrads[j][i];
+            }
         }
     }
 

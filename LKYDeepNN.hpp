@@ -81,19 +81,20 @@ class LKYDeepNN
         
         //最後一個隱藏層到輸出層的順傳遞
         //cout << "最後一個隱藏層到輸出層的順傳遞" << endl;
-        outputLayer->ForwardPropagation();
+        this->outputLayer->ForwardPropagation();
 
         //回傳輸出層輸出
-        return outputLayer->GetOutput();
+        return this->outputLayer->GetOutput();
      }
 
      //public: void Training(vector<vector<double>> trainData, int totalEpochs, double learnRate, double momentum)
      public: void Training(double learningRate, vector<double> desiredOutValues)
      {
-         outputLayer->BackPropagation(learningRate, desiredOutValues);
+         this->outputLayer->BackPropagation(learningRate, desiredOutValues);
+
          for(vector<HiddenLayer*>::reverse_iterator r_it=hiddenLayerArray.rbegin(); r_it!=hiddenLayerArray.rend(); r_it++)
          {
-             (*r_it)->BackPropagation(learningRate);
+            (*r_it)->BackPropagation(learningRate);
          }
      }
 };

@@ -23,6 +23,7 @@ int main()
     }cout << endl;
     cout << "順傳遞測試完成" <<endl;
 
+    cout << "訓練一次" <<endl;
     nn.Training(0.01, vector<double>(2,0));
 
     outputArray = nn.ForwardPropagation(vector<double>{2,2});

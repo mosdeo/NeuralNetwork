@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <random>
+#include "Activation.hpp"
 using namespace std;
 
 class Layer
@@ -61,6 +63,13 @@ class HiddenLayer: private Layer
     protected: Layer* previousLayer;
     protected: Layer* nextLayer;
 
+    //活化函數
+    private: Activation* activation = NULL;
+    public: void SetActivation(Activation* activation)
+    {
+        this->activation = activation;
+    }
+
     public: HiddenLayer(){};
     public: HiddenLayer(int numNodes, Layer* previousLayer, Layer* nextLayer)
     {
@@ -74,18 +83,32 @@ class HiddenLayer: private Layer
     public: void InitializeWeights()
     {   
         this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+
+        const double hi = 1/(sqrt(this->nodes.size()));
+        const double lo = -hi;
+
+        //std::random_device rd;     // only used once to initialise (seed) engine
+        std::mt19937 rng(0);    // random-number engine used (Mersenne-Twister in this case)
+        std::uniform_real_distribution<double> uni_noise(lo, hi); // guaranteed unbiased
+
+        for (size_t j = 0; j < this->intoWeights.size(); ++j)
+            for (size_t i = 0; i < this->intoWeights[j].size(); ++i)
+        {
+            this->intoWeights[j][i] = uni_noise(rng);
+        }
+
         cout << "completed hidden Layer InitializeWeights()" << endl;
     }
 
-    private: vector<double> Activation(vector<double> nodeSum)
-    {
-        vector<double> result(nodeSum.size());
+    // private: vector<double> Activation(vector<double> nodeSum)
+    // {
+    //     vector<double> result(nodeSum.size());
 
-        for (size_t i = 0; i < nodeSum.size(); ++i)
-            result[i] = nodeSum[i];//暫時先這樣
+    //     for (size_t i = 0; i < nodeSum.size(); ++i)
+    //         result[i] = nodeSum[i];//暫時先這樣
 
-        return result;
-    }
+    //     return result;
+    // }
 
     public: void ForwardPropagation()
     {
@@ -95,7 +118,13 @@ class HiddenLayer: private Layer
                 this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
 
         //活化函數
-        this->nodes = Activation(this->nodes);
+        if(NULL == this->activation)
+        {
+            cout << "ERROR: 忘記配置活化函數" << endl;
+            exit(EXIT_FAILURE);
+        }
+
+        this->nodes = this->activation->Forward(this->nodes);
     }
 
     public: void BackPropagation()
@@ -119,6 +148,13 @@ class OutputLayer: private Layer
     //前層
     protected: HiddenLayer* previousLayer;
 
+    //活化函數
+    private: Activation* activation = NULL;
+    public: void SetActivation(Activation* activation)
+    {
+        this->activation = activation;
+    }
+
     public: OutputLayer(){};
     public: OutputLayer(int numNodes, HiddenLayer* previousLayer)
     {
@@ -131,18 +167,32 @@ class OutputLayer: private Layer
     public: void InitializeWeights()
     {
         this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+
+        const double hi = 1/(sqrt(this->nodes.size()));
+        const double lo = -hi;
+
+        //std::random_device rd;     // only used once to initialise (seed) engine
+        std::mt19937 rng(0);    // random-number engine used (Mersenne-Twister in this case)
+        std::uniform_real_distribution<double> uni_noise(lo, hi); // guaranteed unbiased
+
+        for (size_t j = 0; j < this->intoWeights.size(); ++j)
+            for (size_t i = 0; i < this->intoWeights[j].size(); ++i)
+        {
+            this->intoWeights[j][i] = uni_noise(rng);
+        }
+
         cout << "completed output Layer InitializeWeights()" << endl;
     }
 
-    private: vector<double> Activation(vector<double> nodeSum)
-    {
-        vector<double> result(nodeSum.size());
+    // private: vector<double> Activation(vector<double> nodeSum)
+    // {
+    //     vector<double> result(nodeSum.size());
 
-        for (size_t i = 0; i < nodeSum.size(); ++i)
-            result[i] = nodeSum[i];//暫時先這樣
+    //     for (size_t i = 0; i < nodeSum.size(); ++i)
+    //         result[i] = nodeSum[i];//暫時先這樣
 
-        return result;
-    }
+    //     return result;
+    // }
 
     public: void ForwardPropagation()
     {
@@ -152,7 +202,55 @@ class OutputLayer: private Layer
                 this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
 
         //活化函數
-        this->nodes = Activation(this->nodes);
+        if(NULL == this->activation)
+        {
+            cout << "ERROR: 忘記配置活化函數" << endl;
+            exit(EXIT_FAILURE);
+        }
+        
+        //活化函數
+        this->nodes = this->activation->Forward(this->nodes);
+    }
+
+    public: void BackPropagation(double learningRate, vector<double> desiredOutValues)
+    {
+        vector<vector<double>> deltaWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+        vector<double> deltaGradients(this->outBiases.size());
+
+        if(desiredOutValues.size() != this->nodes.size())
+        {
+            cout << "ERROR: desiredOutValues.size() != this->nodes.size()" << endl;
+            exit(EXIT_FAILURE);
+        }
+
+        //權重變化計算與更新
+        for (size_t j = 0; j < deltaWeights.size(); ++j)
+        {
+            if(deltaWeights[j].size() != this->intoWeights[j].size())
+            {//長度檢查
+                cout << "ERROR: deltaWeights[j].size() != this->intoWeights[j]" << endl;
+                exit(EXIT_FAILURE);
+            }
+
+            for (size_t i = 0; i < deltaWeights[j].size(); ++i)
+            {
+                //計算輸出與目標的差值
+                //∆w kj = ε (t k − a k )a k (1 − a k ) a j
+                double err = desiredOutValues[i] - this->nodes[i];
+                deltaWeights[j][i] = err*this->activation->Derivative(this->nodes[i])*this->previousLayer->nodes[j];
+                
+                //更新權重
+                this->intoWeights[j][i] += learningRate*deltaWeights[j][i];
+            }
+        }
+
+        //基底變化計算與更新
+        for (size_t i = 0; i < deltaGradients.size(); ++i)
+        {
+            double err = desiredOutValues[i] - this->nodes[i];
+            deltaGradients[i] = err*this->activation->Derivative(this->nodes[i]);
+            this->outBiases[i] += deltaGradients[i]; 
+        }
     }
 
     public: vector<double> GetOutput()

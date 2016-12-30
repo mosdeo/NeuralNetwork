@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <vector>
 #include <random>
+#include <typeinfo>
 #include "Activation.hpp"
 using namespace std;
 
@@ -24,6 +25,7 @@ class Layer
 };
 
 class HiddenLayer;
+class OutputLayer;
 
 class InputLayer: private Layer
 {
@@ -109,10 +111,12 @@ class HiddenLayer: private Layer
 
     public: void ForwardPropagation()
     {
+        //將自己的節點歸零
+        this->nodes = vector<double>(this->nodes.size() ,0.0);
+
         //節點的乘積與和
         for (size_t j = 0; j < this->nodes.size(); ++j) // compute i-h sum of weights * inputNodes
         {
-            this->nodes[j] = 0;
             for (size_t i = 0; i < this->previousLayer->nodes.size(); ++i)
             {
                 this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
@@ -128,15 +132,35 @@ class HiddenLayer: private Layer
             exit(EXIT_FAILURE);
         }
         else
-        {
+        {//將自身節點全部跑一次活化函數
             this->nodes = this->activation->Forward(this->nodes);
         }
     }
 
     public: void BackPropagation(double learningRate)
     {
-        vector<vector<double>> wGrads = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
-        vector<double> oGrads(this->hiddenBiases.size());
+        for(size_t j=0 ; j < this->wGrads.size() ; j++)
+        {
+            for(size_t i=0 ; i < this->wGrads[j].size() ; i++)
+            {
+                double pervGrad;
+                //this->nextLayer是Layer型別，但正確使用上可能是 HiddenLayer 或 OutputLayer，所以需要降轉。
+                if(typeid(this->nextLayer) == typeid(HiddenLayer*)){
+                    pervGrad = static_cast<HiddenLayer*>(this->nextLayer)->wGrads[j][i];}
+                else if(typeid(this->nextLayer) == typeid(OutputLayer*)){
+                    pervGrad = static_cast<OutputLayer*>(this->nextLayer)->wGrads[j][i];}
+                else{
+                    cout << "ERROR: this->nextLayer 實體型別不屬於 HiddenLayer 或 OutputLayer." << endl;
+                    exit(EXIT_FAILURE);}
+
+                double derivativeActivation = this->activation->Derivative(this->nodes[i]);
+                double pervInput = this->previousLayer->nodes[j];
+                this->wGrads[j][i] = pervGrad*derivativeActivation*pervInput;
+
+                //更新權重
+                this->intoWeights[j][i] -= learningRate*this->wGrads[j][i];
+            }
+        }
     }
 
     public: vector<double> GetOutput()
@@ -199,10 +223,12 @@ class OutputLayer: private Layer
 
     public: void ForwardPropagation()
     {
+        //將自己的節點歸零
+        this->nodes = vector<double>(this->nodes.size() ,0.0);
+
         //節點的乘積與和
         for (size_t j = 0; j < this->nodes.size(); ++j) // compute i-h sum of weights * inputNodes
         {
-            this->nodes[j] = 0;
             for (size_t i = 0; i < this->previousLayer->nodes.size(); ++i)
             {
                 this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
@@ -218,7 +244,7 @@ class OutputLayer: private Layer
             exit(EXIT_FAILURE);
         }
         else
-        {
+        {//將自身節點全部跑一次活化函數
             this->nodes = this->activation->Forward(this->nodes);
         }
     }

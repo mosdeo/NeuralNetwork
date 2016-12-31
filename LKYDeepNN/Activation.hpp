@@ -10,7 +10,7 @@ class Activation
 
 class Tanh: public Activation
 {
-    public: Tanh():Activation()
+    public: Tanh()
     {
         cout << "Activation is Tanh." << endl;
     }

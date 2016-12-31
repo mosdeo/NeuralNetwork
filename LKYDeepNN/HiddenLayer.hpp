@@ -28,7 +28,7 @@ class HiddenLayer: public Layer
     public: ~HiddenLayer()
     {
         if(NULL != activation)
-            delete(activation);
+            delete activation;
     }
 
     public: void InitializeWeights();

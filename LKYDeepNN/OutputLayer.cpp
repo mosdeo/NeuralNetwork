@@ -57,8 +57,8 @@ void OutputLayer::ForwardPropagation()
     //活化函數
     if(NULL == this->activation)
     {
-        cout << "ERROR: 忘記配置活化函數" << endl;
-        exit(EXIT_FAILURE);
+        //cout << "WARNING: Output Layer 沒有配置活化函數，要做 Regression 嗎？" << endl;
+        //exit(EXIT_FAILURE);
     }
     else
     {//將自身節點全部跑一次活化函數
@@ -68,8 +68,8 @@ void OutputLayer::ForwardPropagation()
 
 void OutputLayer::BackPropagation(double learningRate, vector<double> desiredOutValues)
 {
-    cout << "OutputLayer::BackPropagation" << endl;
-    cout << "  prev Layer: " <<this->previousLayer->ToString() << endl;
+    // cout << "OutputLayer::BackPropagation" << endl;
+    // cout << "  prev Layer: " <<this->previousLayer->ToString() << endl;
 
     if(desiredOutValues.size() != this->nodes.size())
     {
@@ -82,7 +82,9 @@ void OutputLayer::BackPropagation(double learningRate, vector<double> desiredOut
         for(size_t i=0 ; i < this->wGrads[j].size() ; i++)
         {
             double err = this->nodes[i] - desiredOutValues[i];//Output-target
-            double derivativeActivation = this->activation->Derivative(this->nodes[i]);
+            double derivativeActivation = (NULL == this->activation)?
+                1:
+                this->activation->Derivative(this->nodes[i]);
             double pervInput = this->previousLayer->nodes[j];
             this->wGrads[j][i] = err*derivativeActivation*pervInput;
 
@@ -90,7 +92,7 @@ void OutputLayer::BackPropagation(double learningRate, vector<double> desiredOut
             this->intoWeights[j][i] -= learningRate*this->wGrads[j][i];
         }
     }
-    cout << "end\n" << endl;
+    //cout << "end\n" << endl;
 }
 
 vector<double> OutputLayer::GetOutput()

@@ -9,6 +9,7 @@ class LKYDeepNN
     private: InputLayer* inputLayer;
     private: vector<HiddenLayer*> hiddenLayerArray;
     private: OutputLayer* outputLayer;
+    private: Activation* activation = NULL;
 
     public: ~LKYDeepNN()
     {
@@ -30,7 +31,7 @@ class LKYDeepNN
         {
             aHiddenLayer = new HiddenLayer();
         }
-        printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
+        //printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
         this->outputLayer = new OutputLayer();
 
 
@@ -47,7 +48,8 @@ class LKYDeepNN
             this->hiddenLayerArray.front()->SetPrevLayer((Layer*)inputLayer);
             this->hiddenLayerArray.front()->SetNextLayer((Layer*)outputLayer);
             this->hiddenLayerArray.front()->SetNode(numNode);
-            this->hiddenLayerArray.front()->SetActivation(new Tanh());
+            //this->hiddenLayerArray.front()->SetActivation(new Tanh());
+            this->hiddenLayerArray.front()->SetActivation(this->activation);
         }
         else
         {//如果hidden layer是多層
@@ -65,27 +67,28 @@ class LKYDeepNN
                 {//最後一個隱藏層連結配置
                     this->hiddenLayerArray.back()->SetPrevLayer((Layer*)*(it-1));
                     this->hiddenLayerArray.back()->SetNextLayer((Layer*)outputLayer);
-                    printf("最後一個隱藏層位址=%p\n",*it);
+                    //printf("最後一個隱藏層位址=%p\n",*it);
                 }
                 else
                 {//中間隱藏層連結配置
                     (*it)->SetPrevLayer((Layer*)*(it-1));
                     (*it)->SetNextLayer((Layer*)*(it+1));
-                    cout << "中間隱藏層連結配置" << endl;
+                    //cout << "中間隱藏層連結配置" << endl;
                 }
 
                 //節點 & 活化函數配置
                 (*it)->SetNode(numNode);
-                (*it)->SetActivation(new Tanh());
+                //(*it)->SetActivation(new Tanh());
+                (*it)->SetActivation(this->activation);
             }
         }
 
         //輸出層連結 & 活化函數配置
         this->outputLayer->SetPrevLayer(hiddenLayerArray.back());
         this->outputLayer->SetNode(numOutputNodes);
-        this->outputLayer->SetActivation(new Tanh());
+        //this->outputLayer->SetActivation(new Tanh());
         
-        printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
+        //printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
         
         //===================== step 3: 統一權重初始化 =====================
         this->InitializeWeights();
@@ -94,7 +97,7 @@ class LKYDeepNN
     public: void InitializeWeights()
     {
         //權重初始化
-        cout << "權重初始化" << endl;
+        //cout << "權重初始化" << endl;
         for (auto hiddenLayer : this->hiddenLayerArray)
         {
             hiddenLayer->InitializeWeights();
@@ -102,34 +105,58 @@ class LKYDeepNN
         this->outputLayer->InitializeWeights();
     }
 
-     public: vector<double> ForwardPropagation(vector<double> inputArray)
-     {
+    public: void SetActivation(Activation* activation)
+    {
+        this->activation = activation;
+
+        for (auto hiddenLayer : this->hiddenLayerArray)
+        {
+            hiddenLayer->SetActivation(activation);
+        }
+        //outputLayer->SetActivation(activation);
+    }
+
+    public: vector<double> ForwardPropagation(vector<double> inputArray)
+    {
+        this->ActivationExistCheck();
+
         //輸入資料到輸入層節點
-        cout << "輸入資料到輸入層節點" << endl;
+        //cout << "輸入資料到輸入層節點" << endl;
         this->inputLayer->Input(inputArray);
-        
+
         //隱藏層順傳遞
-        cout << "隱藏層順傳遞" << endl;
+        //cout << "隱藏層順傳遞" << endl;
         for (auto hiddenLayer : hiddenLayerArray)
         {
             hiddenLayer->ForwardPropagation();
         }
-        
+
         //最後一個隱藏層到輸出層的順傳遞
-        cout << "最後一個隱藏層到輸出層的順傳遞" << endl;
+        //cout << "最後一個隱藏層到輸出層的順傳遞" << endl;
         this->outputLayer->ForwardPropagation();
 
         //回傳輸出層輸出
         return this->outputLayer->GetOutput();
-     }
+    }
 
-     public: void Training(double learningRate, vector<double> desiredOutValues)
-     {
-         this->outputLayer->BackPropagation(learningRate, desiredOutValues);
+    public: void Training(double learningRate, vector<double> desiredOutValues)
+    {
+        this->ActivationExistCheck();
 
-         for(vector<HiddenLayer*>::reverse_iterator r_it=hiddenLayerArray.rbegin(); r_it!=hiddenLayerArray.rend(); r_it++)
-         {
+        this->outputLayer->BackPropagation(learningRate, desiredOutValues);
+
+        for(vector<HiddenLayer*>::reverse_iterator r_it=hiddenLayerArray.rbegin(); r_it!=hiddenLayerArray.rend(); r_it++)
+        {
             (*r_it)->BackPropagation(learningRate);
-         }
-     }
+        }
+    }
+
+    private: void ActivationExistCheck()
+    {//活化函數檢查
+        if(NULL == this->activation)
+        {
+            cout << "ERROR: 沒有配置活化函數." << endl;
+            exit(EXIT_FAILURE);
+        }
+    }
 };

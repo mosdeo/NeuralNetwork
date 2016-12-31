@@ -26,7 +26,7 @@ class OutputLayer: public Layer
     public: ~OutputLayer()
     {
         if(NULL != activation)
-            delete(activation);
+            delete activation;
     }
 
     public: void InitializeWeights();

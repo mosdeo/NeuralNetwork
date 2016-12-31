@@ -36,16 +36,16 @@ void HiddenLayer::InitializeWeights()
         bias = uni_noise(rng);
     }
 
-    cout << "  prev Layer: " << this->previousLayer->ToString() << endl;
-    cout << "  next Layer: " << this->nextLayer->ToString() << endl;
-    cout << "Completed hidden Layer InitializeWeights()" << endl;
+    // cout << "  prev Layer: " << this->previousLayer->ToString() << endl;
+    // cout << "  next Layer: " << this->nextLayer->ToString() << endl;
+    // cout << "Completed hidden Layer InitializeWeights()" << endl;
 }
 
 void HiddenLayer::ForwardPropagation()
 {
-    cout << "HiddenLayer::ForwardPropagation" << endl;
-    cout << typeid(*(this->nextLayer)).name() << endl;
-    cout << typeid(this->previousLayer).name() << endl;
+    // cout << "HiddenLayer::ForwardPropagation" << endl;
+    // cout << typeid(*(this->nextLayer)).name() << endl;
+    // cout << typeid(this->previousLayer).name() << endl;
     // cout << "  prev Layer: " <<this->previousLayer->ToString() << endl;
     // cout << "  next Layer: " << this->nextLayer->ToString() << endl;
 
@@ -53,19 +53,19 @@ void HiddenLayer::ForwardPropagation()
     this->nodes = vector<double>(this->nodes.size() ,0.0);
 
     //節點的乘積與和
-    cout << "this->nodes.size() = " << this->nodes.size() << endl;
+    //cout << "this->nodes.size() = " << this->nodes.size() << endl;
     for (size_t j = 0; j < this->nodes.size(); ++j) // compute i-h sum of weights * inputNodes
     {
-        cout << "this->previousLayer->nodes.size() = " << this->previousLayer->nodes.size() << endl;
+        //cout << "this->previousLayer->nodes.size() = " << this->previousLayer->nodes.size() << endl;
         for (size_t i = 0; i < this->previousLayer->nodes.size(); ++i)
         {
             this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
         }
 
-        cout << "mark" << endl;
-        cout << "this->hiddenBiases[j] = " << this->hiddenBiases[j] << endl;
+        //cout << "mark" << endl;
+        //cout << "this->hiddenBiases[j] = " << this->hiddenBiases[j] << endl;
         this->nodes[j] += this->hiddenBiases[j];
-        cout << "mark" << endl;
+        //cout << "mark" << endl;
     }
 
     //活化函數
@@ -82,9 +82,9 @@ void HiddenLayer::ForwardPropagation()
 
 void HiddenLayer::BackPropagation(double learningRate)
 {
-    cout << "HiddenLayer::BackPropagation" << endl;
-    cout << "  prev Layer: " <<this->previousLayer->ToString() << endl;
-    cout << "  next Layer: " << this->nextLayer->ToString() << endl;
+    // cout << "HiddenLayer::BackPropagation" << endl;
+    // cout << "  prev Layer: " <<this->previousLayer->ToString() << endl;
+    // cout << "  next Layer: " << this->nextLayer->ToString() << endl;
 
     for(size_t j=0 ; j < this->wGrads.size() ; j++)
     {
@@ -100,9 +100,7 @@ void HiddenLayer::BackPropagation(double learningRate)
             // {
             //     cout << "ERROR: HiddenLayer 的下一層不能是 OutputLayer." << endl;
             //     exit(EXIT_FAILURE);
-            // }
-
-            
+            // }          
 
             if(NULL == this->previousLayer)
             {
@@ -119,7 +117,7 @@ void HiddenLayer::BackPropagation(double learningRate)
             this->intoWeights[j][i] -= learningRate*this->wGrads[j][i];
         }
     }
-    cout << "end\n" << endl;
+    //cout << "end\n" << endl;
 }
 
 vector<double> HiddenLayer::GetOutput()

@@ -66,8 +66,12 @@ void HiddenLayer::InitializeWeights()
 
 void HiddenLayer::ForwardPropagation()
 {
+    cout << "HiddenLayer::ForwardPropagation" << endl;
+    // cout << "  prev Layer: " <<this->previousLayer->ToString() << endl;
+    // cout << "  next Layer: " << this->nextLayer->ToString() << endl;
+
     //將自己的節點歸零，因為要存放上一級傳來的運算結果，不能累積。
-    this->nodes = vector<double>(this->nodes.size() ,0.0);
+    this->nodes = vector<double>(this->nodes.size() ,0.0); cout << "mark" << endl;
 
     //節點的乘積與和
     for (size_t j = 0; j < this->nodes.size(); ++j) // compute i-h sum of weights * inputNodes
@@ -75,9 +79,10 @@ void HiddenLayer::ForwardPropagation()
         for (size_t i = 0; i < this->previousLayer->nodes.size(); ++i)
         {
             this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
+            cout << "mark" << endl;
         }
 
-        this->nodes[j] += this->hiddenBiases[j];
+        this->nodes[j] += this->hiddenBiases[j];cout << "mark" << endl;
     }
 
     //活化函數

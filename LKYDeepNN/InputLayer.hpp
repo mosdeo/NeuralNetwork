@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class InputLayer: private Layer
+class InputLayer: public Layer
 {
     //後層
     protected: HiddenLayer* nextLayer;

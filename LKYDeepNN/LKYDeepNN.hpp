@@ -27,7 +27,7 @@ class LKYDeepNN
         //noteic: 這一層不能再做實體配置，不然會改變各層的位址，先前建立好的link會壞掉
         // 輸入層
         this->inputLayer->SetNextLayer(hiddenLayerArray.front());
-        this->inputLayer->SetNode(numInputNodes);
+        (this->inputLayer)->SetNode(numInputNodes);
 
         //隱藏層
         if(1 ==  this->hiddenLayerArray.size())
@@ -82,7 +82,7 @@ class LKYDeepNN
         // int numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
         // hiddenLayerArray.back()->SetPrevLayer((Layer*)*(hiddenLayerArray.end()-2));
         // hiddenLayerArray.back()->SetNextLayer((Layer*)outputLayer);
-        // printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
+        printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
         // hiddenLayerArray.back()->SetActivation(new Tanh());
 
         // //倒數第二個隱藏層重新配置(這邊方法有點爛)
@@ -113,18 +113,18 @@ class LKYDeepNN
      public: vector<double> ForwardPropagation(vector<double> inputArray)
      {
         //輸入資料到輸入層節點
-        //cout << "輸入資料到輸入層節點" << endl;
+        cout << "輸入資料到輸入層節點" << endl;
         this->inputLayer->Input(inputArray);
         
         //隱藏層順傳遞
-        //cout << "隱藏層順傳遞" << endl;
+        cout << "隱藏層順傳遞" << endl;
         for (auto hiddenLayer : hiddenLayerArray)
         {
             hiddenLayer->ForwardPropagation();
         }
         
         //最後一個隱藏層到輸出層的順傳遞
-        //cout << "最後一個隱藏層到輸出層的順傳遞" << endl;
+        cout << "最後一個隱藏層到輸出層的順傳遞" << endl;
         this->outputLayer->ForwardPropagation();
 
         //回傳輸出層輸出

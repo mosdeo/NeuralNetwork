@@ -6,7 +6,7 @@
 
 class HiddenLayer;
 
-class OutputLayer: private Layer
+class OutputLayer: public Layer
 {
     //順向進入的權重與基底
     protected: vector<vector<double>> intoWeights;

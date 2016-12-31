@@ -5,7 +5,7 @@
 #include "InputLayer.hpp"
 #include "OutputLayer.hpp"
 
-class HiddenLayer: private Layer
+class HiddenLayer: public Layer
 {
     friend class OutputLayer;
 

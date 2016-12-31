@@ -34,7 +34,9 @@ class OutputLayer: private Layer
 
     public: vector<double> GetOutput();
 
-    public: string ToString(){ return "class OutputLayer";} 
+    public: string ToString(){ return "class OutputLayer";}
+
+    public: void SetPrevLayer(HiddenLayer*);
 };
 
 #endif

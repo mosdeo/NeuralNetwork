@@ -23,3 +23,8 @@ void InputLayer::Input(const vector<double> inputArray)
         exit(EXIT_FAILURE);
     }
 }
+
+void InputLayer::SetNextLayer(HiddenLayer* nextLayer)
+{
+    this->nextLayer = nextLayer;
+}

@@ -136,3 +136,13 @@ vector<double> HiddenLayer::GetOutput()
 {
     return this->nodes;
 }
+
+void HiddenLayer::SetNextLayer(Layer* nextLayer)
+{
+    this->nextLayer = nextLayer;
+}
+
+void HiddenLayer::SetPrevLayer(Layer* pervLayer)
+{
+    this->previousLayer = pervLayer;
+}

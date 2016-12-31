@@ -32,6 +32,11 @@ class Layer
     }
 
     public: virtual string ToString(){ return "class Layer";} 
+
+    public: void SetNode(int numNodes)
+    {
+        this->nodes  = vector<double>(numNodes);
+    }
 };
 
 #endif

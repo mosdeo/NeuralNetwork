@@ -37,6 +37,9 @@ class HiddenLayer: private Layer
     public: vector<double> GetOutput();
 
     public: string ToString(){ return "class HiddenLayer";} 
+
+    public: void SetNextLayer(Layer*);
+    public: void SetPrevLayer(Layer*);
 };
 
 #endif

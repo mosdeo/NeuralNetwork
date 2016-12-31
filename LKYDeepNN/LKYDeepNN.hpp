@@ -54,10 +54,14 @@ class LKYDeepNN
         outputLayer = new OutputLayer(numOutputNodes, hiddenLayerArray.back());
         
         //最後一個隱藏層重新配置(這邊方法有點爛)
-        //int numNode = numHiddenNodes[numHiddenNodes.size()-1];
         int numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
         hiddenLayerArray.back() = new HiddenLayer(numNode, (Layer*)*(hiddenLayerArray.end()-2), (Layer*)outputLayer);
         hiddenLayerArray.back()->SetActivation(new Tanh());
+
+        // //倒數第二個隱藏層重新配置(這邊方法有點爛)
+        // numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
+        // hiddenLayerArray[hiddenLayerArray.size()-2] = new HiddenLayer(numNode, (Layer*)*(hiddenLayerArray.end()-3), (Layer*)*(hiddenLayerArray.end()-1));
+        // hiddenLayerArray[hiddenLayerArray.size()-2]->SetActivation(new Tanh());
         
         //輸出層活化函數配置
         outputLayer->SetActivation(new Tanh());

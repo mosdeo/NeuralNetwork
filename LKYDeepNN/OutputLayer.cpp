@@ -99,3 +99,8 @@ vector<double> OutputLayer::GetOutput()
 {
     return this->nodes;
 }
+
+void OutputLayer::SetPrevLayer(HiddenLayer* pervLayer)
+{
+    this->previousLayer = pervLayer;
+}

@@ -1,4 +1,4 @@
-#include "LKYDeepNN.hpp"
+#include "LKYDeepNN/LKYDeepNN.hpp"
 
 
 int main()

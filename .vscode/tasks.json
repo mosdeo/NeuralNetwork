@@ -5,7 +5,7 @@
     "isShellCommand": true,
     "showOutput": "always",
     "args": [
-            "main.cpp",
+            "main.cpp","LKYDeepNN/InputLayer.cpp","LKYDeepNN/HiddenLayer.cpp","LKYDeepNN/OutputLayer.cpp",
             //"main-classification.cpp",
             //"main-regression.cpp",
             "-Wall",

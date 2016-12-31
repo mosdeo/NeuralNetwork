@@ -23,7 +23,7 @@ class LKYDeepNN
         this->outputLayer = new OutputLayer();
 
 
-        //===================== step 1: 各層連結配置 & 節點初始化 =====================
+        //===================== step 2: 各層連結配置 & 節點初始化 =====================
         //noteic: 這一層不能再做實體配置，不然會改變各層的位址，先前建立好的link會壞掉
         // 輸入層
         this->inputLayer->SetNextLayer(hiddenLayerArray.front());
@@ -31,7 +31,7 @@ class LKYDeepNN
 
         //隱藏層
         if(1 ==  this->hiddenLayerArray.size())
-        {
+        {//如果hidden layer只有一層就這樣處理
             int numNode = numHiddenNodes.front();
             this->hiddenLayerArray.front()->SetPrevLayer((Layer*)inputLayer);
             this->hiddenLayerArray.front()->SetNextLayer((Layer*)outputLayer);
@@ -39,7 +39,7 @@ class LKYDeepNN
             this->hiddenLayerArray.front()->SetActivation(new Tanh());
         }
         else
-        {
+        {//如果hidden layer是多層
             for(vector<HiddenLayer*>::iterator it=hiddenLayerArray.begin(); it!=hiddenLayerArray.end(); it++)
             {
                 //取得此層節點數
@@ -49,20 +49,17 @@ class LKYDeepNN
                 {//第一個隱藏層連結配置
                     this->hiddenLayerArray.front()->SetPrevLayer((Layer*)inputLayer);
                     this->hiddenLayerArray.front()->SetNextLayer((Layer*)*(it+1));
-                    //*it = new HiddenLayer(numNode, (Layer*)inputLayer, (Layer*)*(it+1));
                 }
                 else if(it==hiddenLayerArray.end()-1)
                 {//最後一個隱藏層連結配置
                     this->hiddenLayerArray.back()->SetPrevLayer((Layer*)*(it-1));
                     this->hiddenLayerArray.back()->SetNextLayer((Layer*)outputLayer);
-                    //*it = new HiddenLayer(numNode, (Layer*)*(it-1), (Layer*)outputLayer);
                     printf("最後一個隱藏層位址=%p\n",*it);
                 }
                 else
                 {//中間隱藏層連結配置
                     (*it)->SetPrevLayer((Layer*)*(it-1));
                     (*it)->SetNextLayer((Layer*)*(it+1));
-                    //*it = new HiddenLayer(numNode, (Layer*)*(it-1), (Layer*)*(it+1));
                     cout << "中間隱藏層連結配置" << endl;
                 }
 
@@ -76,27 +73,11 @@ class LKYDeepNN
         this->outputLayer->SetPrevLayer(hiddenLayerArray.back());
         this->outputLayer->SetNode(numOutputNodes);
         this->outputLayer->SetActivation(new Tanh());
-        //outputLayer = new OutputLayer(numOutputNodes, hiddenLayerArray.back());
         
-        //最後一個隱藏層重新配置(這邊方法有點爛)
-        // int numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
-        // hiddenLayerArray.back()->SetPrevLayer((Layer*)*(hiddenLayerArray.end()-2));
-        // hiddenLayerArray.back()->SetNextLayer((Layer*)outputLayer);
         printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
-        // hiddenLayerArray.back()->SetActivation(new Tanh());
-
-        // //倒數第二個隱藏層重新配置(這邊方法有點爛)
-        // numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
-        // hiddenLayerArray[hiddenLayerArray.size()-2] = new HiddenLayer(numNode, (Layer*)*(hiddenLayerArray.end()-3), (Layer*)*(hiddenLayerArray.end()-1));
-        // hiddenLayerArray[hiddenLayerArray.size()-2]->SetActivation(new Tanh());
         
-        //統一權重初始化
+        //===================== step 3: 統一權重初始化 =====================
         this->InitializeWeights();
-
-        cout << "測試最後一個隱藏層連結配置" << endl;
-        cout << hiddenLayerArray.back()->ToString() << endl;
-        cout << hiddenLayerArray.back()->nextLayer->ToString() << endl;
-        cout << "======================" << endl;
     }
 
     public: void InitializeWeights()
@@ -131,7 +112,6 @@ class LKYDeepNN
         return this->outputLayer->GetOutput();
      }
 
-     //public: void Training(vector<vector<double>> trainData, int totalEpochs, double learnRate, double momentum)
      public: void Training(double learningRate, vector<double> desiredOutValues)
      {
          this->outputLayer->BackPropagation(learningRate, desiredOutValues);

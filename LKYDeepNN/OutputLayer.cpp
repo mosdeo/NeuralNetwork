@@ -32,12 +32,19 @@ void OutputLayer::InitializeWeights()
     std::uniform_real_distribution<double> uni_noise(lo, hi); // guaranteed unbiased
 
     for (size_t j = 0; j < this->intoWeights.size(); ++j)
-        for (size_t i = 0; i < this->intoWeights[j].size(); ++i)
     {
-        this->intoWeights[j][i] = uni_noise(rng);
+        for (size_t i = 0; i < this->intoWeights[j].size(); ++i)
+        {
+            this->intoWeights[j][i] = uni_noise(rng);
+        }
     }
 
-    cout << "completed output Layer InitializeWeights()" << endl;
+    for(double& bias : this->outBiases)
+    {
+        bias = uni_noise(rng);
+    }
+
+    cout << "Completed output Layer InitializeWeights()" << endl;
 }
 
 void OutputLayer::ForwardPropagation()

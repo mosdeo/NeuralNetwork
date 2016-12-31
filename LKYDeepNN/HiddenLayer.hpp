@@ -26,7 +26,6 @@ class HiddenLayer: public Layer
     public: void SetActivation(Activation*);
 
     public: HiddenLayer();
-    public: HiddenLayer(int , Layer*, Layer*);
 
     public: void InitializeWeights();
 

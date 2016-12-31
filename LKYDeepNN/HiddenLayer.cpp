@@ -10,41 +10,13 @@ void HiddenLayer::SetActivation(Activation* activation)
 }
 
 HiddenLayer::HiddenLayer(){};
-HiddenLayer::HiddenLayer(int numNodes, Layer* previousLayer, Layer* nextLayer)
-{
-    // bool isInputLayer = typeid(nextLayer)==typeid(InputLayer*);
-    // bool isHiddenLayer = typeid(nextLayer)==typeid(HiddenLayer*);
-    // bool isOutputLayer = typeid(nextLayer)==typeid(OutputLayer*);
-    // printf("%d,%d,%d\n",isInputLayer, isHiddenLayer, isOutputLayer);
-    // if(!isHiddenLayer || !isOutputLayer)
-    // {
-    //     cout << "HiddenLayer 的下一層必須是 HiddenLayer 或 OutputLayer" << endl;
-    //     exit(EXIT_FAILURE);
-    // }
-
-    // isInputLayer = typeid(previousLayer)==typeid(InputLayer*);
-    // isHiddenLayer = typeid(previousLayer)==typeid(HiddenLayer*);
-    // isOutputLayer = typeid(previousLayer)==typeid(OutputLayer*);
-    // if(isHiddenLayer && isOutputLayer)
-    // {
-    //     cout << "HiddenLayer 的上一層必須是 HiddenLayer 或 InputLayer" << endl;
-    //     exit(EXIT_FAILURE);
-    // }
-
-
-    this->previousLayer = previousLayer;
-    this->nextLayer = nextLayer;
-
-    this->nodes  = vector<double>(numNodes);
-    this->hiddenBiases = vector<double>(numNodes,0); //numNodes double with value 0
-
-    this->wGrads = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 0.0);
-    this->oGrads = vector<double>(this->hiddenBiases.size());
-}
 
 void HiddenLayer::InitializeWeights()
 {   
     this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+    this->hiddenBiases = vector<double>(this->nodes.size() ,0); //numNodes double with value 0
+    this->wGrads = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 0.0);
+    this->oGrads = vector<double>(this->hiddenBiases.size());
 
     const double hi = 1/(sqrt(this->nodes.size()));
     const double lo = -hi;
@@ -92,6 +64,8 @@ void HiddenLayer::ForwardPropagation()
             this->nodes[j] += this->previousLayer->nodes[i] * this->intoWeights[i][j]; // note +=
         }
 
+        cout << "mark" << endl;
+        cout << "this->hiddenBiases[j] = " << this->hiddenBiases[j] << endl;
         this->nodes[j] += this->hiddenBiases[j];
         cout << "mark" << endl;
     }

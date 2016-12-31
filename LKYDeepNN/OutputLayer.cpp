@@ -9,20 +9,13 @@ void OutputLayer::SetActivation(Activation* activation)
 }
 
 OutputLayer::OutputLayer(){};
-OutputLayer::OutputLayer(int numNodes, HiddenLayer* previousLayer)
-{
-    this->previousLayer = previousLayer;
-
-    this->nodes  = vector<double>(numNodes);
-    this->outBiases = vector<double>(numNodes,0); //numNodes double with value 0
-
-    this->wGrads = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 0.0);
-    this->oGrads = vector<double>(this->outBiases.size());
-}
 
 void OutputLayer::InitializeWeights()
 {
     this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);
+    this->outBiases = vector<double>(this->nodes.size(), 0); //numNodes double with value 0
+    this->wGrads = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 0.0);
+    this->oGrads = vector<double>(this->outBiases.size());
 
     const double hi = 1/(sqrt(this->nodes.size()));
     const double lo = -hi;

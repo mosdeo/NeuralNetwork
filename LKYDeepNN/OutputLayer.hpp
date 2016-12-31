@@ -24,7 +24,6 @@ class OutputLayer: public Layer
     public: void SetActivation(Activation*);
 
     public: OutputLayer();
-    public: OutputLayer(int, HiddenLayer*);
 
     public: void InitializeWeights();
 

@@ -59,6 +59,8 @@ void HiddenLayer::InitializeWeights()
         this->intoWeights[j][i] = uni_noise(rng);
     }
 
+    //cout << this->previousLayer->ToString() << endl;
+    //cout << this->nextLayer->ToString() << endl;
     cout << "completed hidden Layer InitializeWeights()" << endl;
 }
 
@@ -92,36 +94,42 @@ void HiddenLayer::ForwardPropagation()
 
 void HiddenLayer::BackPropagation(double learningRate)
 {
+    cout << "HiddenLayer::BackPropagation" << endl;
+    cout << "  prev Layer: " <<this->previousLayer->ToString() << endl;
+    cout << "  next Layer: " << this->nextLayer->ToString() << endl;
+
     for(size_t j=0 ; j < this->wGrads.size() ; j++)
     {
         for(size_t i=0 ; i < this->wGrads[j].size() ; i++)
         {
-            if(typeid(*(this->nextLayer)) == typeid(InputLayer))
+            // if(typeid(*(this->nextLayer)) == typeid(InputLayer))
+            // {
+            //     cout << "ERROR: HiddenLayer 的下一層不能是 InputLayer." << endl;
+            //     exit(EXIT_FAILURE);
+            // }
+
+            // if(typeid(*(this->nextLayer)) == typeid(OutputLayer))
+            // {
+            //     cout << "ERROR: HiddenLayer 的下一層不能是 OutputLayer." << endl;
+            //     exit(EXIT_FAILURE);
+            // }
+
+            if(NULL == this->previousLayer)
             {
-                cout << "ERROR: HiddenLayer 的下一層不能是 InputLayer." << endl;
+                cout << "NULL == this->previousLayer" << endl;
                 exit(EXIT_FAILURE);
             }
 
-            if(typeid(*(this->nextLayer)) == typeid(OutputLayer))
-            {
-                cout << "ERROR: HiddenLayer 的下一層不能是 OutputLayer." << endl;
-                exit(EXIT_FAILURE);
-            }
-
-            cout << "mark" << endl;
-            cout << this->previousLayer->ToString() << endl;
-            cout << this->nextLayer->ToString() << endl;
-            
-
-            double pervGrad = this->nextLayer->wGrads[j][i];cout << "mark" << endl;
-            double derivativeActivation = this->activation->Derivative(this->nodes[i]);
-            double pervInput = this->previousLayer->nodes[j];
+            double pervGrad = this->nextLayer->wGrads[j][i]; //取得下一層算過的梯度
+            double derivativeActivation = this->activation->Derivative(this->nodes[i]);//取得進出這個節點的梯度
+            double pervInput = this->previousLayer->nodes[j];//取得上一個節點的值
             this->wGrads[j][i] = pervGrad*derivativeActivation*pervInput;
 
             //更新權重
             this->intoWeights[j][i] -= learningRate*this->wGrads[j][i];
         }
     }
+    cout << "end\n" << endl;
 }
 
 vector<double> HiddenLayer::GetOutput()

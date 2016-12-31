@@ -14,7 +14,8 @@ class LKYDeepNN
     {
         //輸入層連結配置
         this->hiddenLayerArray = vector<HiddenLayer*>(numHiddenNodes.size()); //這行要先做, 不然沒東西傳入InputLayer建構子
-        this->inputLayer = new InputLayer(numInputNodes, *(hiddenLayerArray.begin()));
+        //this->inputLayer = new InputLayer(numInputNodes, *(hiddenLayerArray.begin()));
+        this->inputLayer = new InputLayer(numInputNodes, hiddenLayerArray.front());
 
         //隱藏層連結配置
         if(1 ==  this->hiddenLayerArray.size())
@@ -34,13 +35,14 @@ class LKYDeepNN
                 {//第一個隱藏層連結配置
                     *it = new HiddenLayer(numNode, (Layer*)inputLayer, (Layer*)*(it+1));
                 }
-                else if(it!=hiddenLayerArray.end()-1)
+                else if(it==hiddenLayerArray.end()-1)
                 {//最後一個隱藏層連結配置
                     *it = new HiddenLayer(numNode, (Layer*)*(it-1), (Layer*)outputLayer);
                 }
                 else
                 {//中間隱藏層連結配置
                     *it = new HiddenLayer(numNode, (Layer*)*(it-1), (Layer*)*(it+1));
+                    cout << "中間隱藏層連結配置" << endl;
                 }
 
                 //活化函數配置
@@ -51,11 +53,22 @@ class LKYDeepNN
         //輸出層連結配置
         outputLayer = new OutputLayer(numOutputNodes, hiddenLayerArray.back());
         
+        //最後一個隱藏層重新配置(這邊方法有點爛)
+        //int numNode = numHiddenNodes[numHiddenNodes.size()-1];
+        int numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
+        hiddenLayerArray.back() = new HiddenLayer(numNode, (Layer*)*(hiddenLayerArray.end()-2), (Layer*)outputLayer);
+        hiddenLayerArray.back()->SetActivation(new Tanh());
+        
         //輸出層活化函數配置
         outputLayer->SetActivation(new Tanh());
 
         //統一權重初始化
         this->InitializeWeights();
+
+        cout << "測試最後一個隱藏層連結配置" << endl;
+        cout << hiddenLayerArray.back()->ToString() << endl;
+        cout << hiddenLayerArray.back()->nextLayer->ToString() << endl;
+        cout << "======================" << endl;
     }
 
     public: void InitializeWeights()

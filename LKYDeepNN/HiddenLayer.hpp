@@ -15,7 +15,7 @@ class HiddenLayer: private Layer
     
     //前後層
     protected: Layer* previousLayer;
-    protected: Layer* nextLayer;
+    public: Layer* nextLayer;
 
     // //倒傳遞的梯度
     // protected: vector<vector<double>> wGrads;

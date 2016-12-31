@@ -42,7 +42,7 @@ void OutputLayer::InitializeWeights()
 
 void OutputLayer::ForwardPropagation()
 {
-    //將自己的節點歸零
+    //將自己的節點歸零，因為要存放上一級傳來的運算結果，不能累積。
     this->nodes = vector<double>(this->nodes.size() ,0.0);
 
     //節點的乘積與和
@@ -70,6 +70,9 @@ void OutputLayer::ForwardPropagation()
 
 void OutputLayer::BackPropagation(double learningRate, vector<double> desiredOutValues)
 {
+    cout << "OutputLayer::BackPropagation" << endl;
+    cout << "  prev Layer: " <<this->previousLayer->ToString() << endl;
+
     if(desiredOutValues.size() != this->nodes.size())
     {
         cout << "ERROR: desiredOutValues.size() != this->nodes.size()" << endl;
@@ -89,6 +92,7 @@ void OutputLayer::BackPropagation(double learningRate, vector<double> desiredOut
             this->intoWeights[j][i] -= learningRate*this->wGrads[j][i];
         }
     }
+    cout << "end\n" << endl;
 }
 
 vector<double> OutputLayer::GetOutput()

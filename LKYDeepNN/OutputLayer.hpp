@@ -23,7 +23,11 @@ class OutputLayer: public Layer
     private: Activation* activation = NULL;
     public: void SetActivation(Activation*);
 
-    public: OutputLayer();
+    public: ~OutputLayer()
+    {
+        if(NULL != activation)
+            delete(activation);
+    }
 
     public: void InitializeWeights();
 

@@ -10,10 +10,11 @@ class Activation
 
 class Tanh: public Activation
 {
-    public: Tanh()
+    public: Tanh():Activation()
     {
         cout << "Activation is Tanh." << endl;
-    } 
+    }
+
 
     public: vector<double> Forward(const vector<double>& nodeSum)
     {
@@ -36,7 +37,7 @@ class ReLU: public Activation
     public: ReLU()
     {
         cout << "Activation is ReLU." << endl;
-    } 
+    }
 
     public: vector<double> Forward(const vector<double>& nodeSum)
     {

@@ -25,7 +25,11 @@ class HiddenLayer: public Layer
     private: Activation* activation = NULL;
     public: void SetActivation(Activation*);
 
-    public: HiddenLayer();
+    public: ~HiddenLayer()
+    {
+        if(NULL != activation)
+            delete(activation);
+    }
 
     public: void InitializeWeights();
 

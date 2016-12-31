@@ -8,8 +8,6 @@ void OutputLayer::SetActivation(Activation* activation)
     this->activation = activation;
 }
 
-OutputLayer::OutputLayer(){};
-
 void OutputLayer::InitializeWeights()
 {
     this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);

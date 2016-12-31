@@ -9,8 +9,6 @@ void HiddenLayer::SetActivation(Activation* activation)
     this->activation = activation;
 }
 
-HiddenLayer::HiddenLayer(){};
-
 void HiddenLayer::InitializeWeights()
 {   
     this->intoWeights = MakeMatrix(this->previousLayer->nodes.size(), this->nodes.size(), 1.0);

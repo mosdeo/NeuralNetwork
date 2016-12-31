@@ -9,6 +9,17 @@ class LKYDeepNN
     private: InputLayer* inputLayer;
     private: vector<HiddenLayer*> hiddenLayerArray;
     private: OutputLayer* outputLayer;
+
+    public: ~LKYDeepNN()
+    {
+        delete inputLayer;
+        for (auto hiddenLayer : this->hiddenLayerArray)
+        {
+            delete hiddenLayer;
+        }
+        delete outputLayer;
+        cout << "~LKYDeepNN() completed." << endl;
+    }
     
     public: LKYDeepNN(int numInputNodes, vector<int> numHiddenNodes, int numOutputNodes)
     {

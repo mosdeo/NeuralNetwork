@@ -12,17 +12,31 @@ class LKYDeepNN
     
     public: LKYDeepNN(int numInputNodes, vector<int> numHiddenNodes, int numOutputNodes)
     {
-        //輸入層連結配置
+        //===================== step 1: 各層實體配置 ===================== 
+        this->inputLayer = new InputLayer();
         this->hiddenLayerArray = vector<HiddenLayer*>(numHiddenNodes.size()); //這行要先做, 不然沒東西傳入InputLayer建構子
-        //this->inputLayer = new InputLayer(numInputNodes, *(hiddenLayerArray.begin()));
-        this->inputLayer = new InputLayer(numInputNodes, hiddenLayerArray.front());
+        for(auto& aHiddenLayer : this->hiddenLayerArray)
+        {
+            aHiddenLayer = new HiddenLayer();
+        }
+        printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
+        this->outputLayer = new OutputLayer();
 
-        //隱藏層連結配置
+
+        //===================== step 1: 各層連結配置 & 節點初始化 =====================
+        //noteic: 這一層不能再做實體配置，不然會改變各層的位址，先前建立好的link會壞掉
+        // 輸入層
+        this->inputLayer->SetNextLayer(hiddenLayerArray.front());
+        this->inputLayer->SetNode(numInputNodes);
+
+        //隱藏層
         if(1 ==  this->hiddenLayerArray.size())
         {
             int numNode = numHiddenNodes.front();
-            hiddenLayerArray.front() = new HiddenLayer(numNode, (Layer*)inputLayer, (Layer*)outputLayer);
-            hiddenLayerArray.front()->SetActivation(new Tanh());
+            this->hiddenLayerArray.front()->SetPrevLayer((Layer*)inputLayer);
+            this->hiddenLayerArray.front()->SetNextLayer((Layer*)outputLayer);
+            this->hiddenLayerArray.front()->SetNode(numNode);
+            this->hiddenLayerArray.front()->SetActivation(new Tanh());
         }
         else
         {
@@ -33,39 +47,49 @@ class LKYDeepNN
                 
                 if(it==hiddenLayerArray.begin())
                 {//第一個隱藏層連結配置
-                    *it = new HiddenLayer(numNode, (Layer*)inputLayer, (Layer*)*(it+1));
+                    this->hiddenLayerArray.front()->SetPrevLayer((Layer*)inputLayer);
+                    this->hiddenLayerArray.front()->SetNextLayer((Layer*)*(it+1));
+                    //*it = new HiddenLayer(numNode, (Layer*)inputLayer, (Layer*)*(it+1));
                 }
                 else if(it==hiddenLayerArray.end()-1)
                 {//最後一個隱藏層連結配置
-                    *it = new HiddenLayer(numNode, (Layer*)*(it-1), (Layer*)outputLayer);
+                    this->hiddenLayerArray.back()->SetPrevLayer((Layer*)*(it-1));
+                    this->hiddenLayerArray.back()->SetNextLayer((Layer*)outputLayer);
+                    //*it = new HiddenLayer(numNode, (Layer*)*(it-1), (Layer*)outputLayer);
+                    printf("最後一個隱藏層位址=%p\n",*it);
                 }
                 else
                 {//中間隱藏層連結配置
-                    *it = new HiddenLayer(numNode, (Layer*)*(it-1), (Layer*)*(it+1));
+                    (*it)->SetPrevLayer((Layer*)*(it-1));
+                    (*it)->SetNextLayer((Layer*)*(it+1));
+                    //*it = new HiddenLayer(numNode, (Layer*)*(it-1), (Layer*)*(it+1));
                     cout << "中間隱藏層連結配置" << endl;
                 }
 
-                //活化函數配置
+                //節點 & 活化函數配置
+                (*it)->SetNode(numNode);
                 (*it)->SetActivation(new Tanh());
             }
         }
 
-        //輸出層連結配置
-        outputLayer = new OutputLayer(numOutputNodes, hiddenLayerArray.back());
+        //輸出層連結 & 活化函數配置
+        this->outputLayer->SetPrevLayer(hiddenLayerArray.back());
+        this->outputLayer->SetNode(numOutputNodes);
+        this->outputLayer->SetActivation(new Tanh());
+        //outputLayer = new OutputLayer(numOutputNodes, hiddenLayerArray.back());
         
         //最後一個隱藏層重新配置(這邊方法有點爛)
-        int numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
-        hiddenLayerArray.back() = new HiddenLayer(numNode, (Layer*)*(hiddenLayerArray.end()-2), (Layer*)outputLayer);
-        hiddenLayerArray.back()->SetActivation(new Tanh());
+        // int numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
+        // hiddenLayerArray.back()->SetPrevLayer((Layer*)*(hiddenLayerArray.end()-2));
+        // hiddenLayerArray.back()->SetNextLayer((Layer*)outputLayer);
+        // printf("最後一個隱藏層位址=%p\n",hiddenLayerArray.back());
+        // hiddenLayerArray.back()->SetActivation(new Tanh());
 
         // //倒數第二個隱藏層重新配置(這邊方法有點爛)
         // numNode = numHiddenNodes.back();//取得最後一個隱藏層應有節點數
         // hiddenLayerArray[hiddenLayerArray.size()-2] = new HiddenLayer(numNode, (Layer*)*(hiddenLayerArray.end()-3), (Layer*)*(hiddenLayerArray.end()-1));
         // hiddenLayerArray[hiddenLayerArray.size()-2]->SetActivation(new Tanh());
         
-        //輸出層活化函數配置
-        outputLayer->SetActivation(new Tanh());
-
         //統一權重初始化
         this->InitializeWeights();
 
